@@ -3,14 +3,16 @@ package com.safetynet.safetynetalerts.service;
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import com.safetynet.safetynetalerts.model.Firestation;
 import com.safetynet.safetynetalerts.repository.JsonToObject;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements EncapsulateModelsPrsFstMdrDAO<Firestation> {
 
     @Override
-    public void add(Firestation firestation) {
+    public Firestation add(Firestation firestation) {
         JsonToObject jsonToObject = new JsonToObject();
 
         EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
@@ -20,6 +22,7 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
         readJsonData.setFirestationList(firestationList);
 
         jsonToObject.saveJsonData(readJsonData);
+        return firestation;
     }
 
     @Override

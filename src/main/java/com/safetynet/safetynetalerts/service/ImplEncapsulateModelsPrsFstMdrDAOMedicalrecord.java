@@ -3,14 +3,16 @@ package com.safetynet.safetynetalerts.service;
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import com.safetynet.safetynetalerts.model.Medicalrecord;
 import com.safetynet.safetynetalerts.repository.JsonToObject;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements EncapsulateModelsPrsFstMdrDAO<Medicalrecord> {
 
     @Override
-    public void add(Medicalrecord medicalrecord) {
+    public Medicalrecord add(Medicalrecord medicalrecord) {
         JsonToObject jsonToObject = new JsonToObject();
 
         EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
@@ -20,6 +22,7 @@ public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements Encapsula
         readJsonData.setMedicalrecordList(medicalrecordList);
 
         jsonToObject.saveJsonData(readJsonData);
+        return medicalrecord;
     }
 
     @Override
