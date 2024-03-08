@@ -1,8 +1,7 @@
-package com.safetynet.safetynetalerts.service;
+package com.safetynet.safetynetalerts.repository;
 
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import com.safetynet.safetynetalerts.model.Firestation;
-import com.safetynet.safetynetalerts.repository.JsonToObject;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -37,7 +36,7 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
                 .filter(p -> p.getAddress().equals(address))
                 .findFirst();
         findFirestation.ifPresentOrElse(firestation -> {
-            firestation.setStation(firestation.getStation());
+            firestation.setStation(firestationUpdate.getStation());
 
             System.out.println("UPDATE COMPLETE !");
 

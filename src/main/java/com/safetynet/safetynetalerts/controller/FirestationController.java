@@ -1,7 +1,7 @@
 package com.safetynet.safetynetalerts.controller;
 
 import com.safetynet.safetynetalerts.model.Firestation;
-import com.safetynet.safetynetalerts.service.ImplEncapsulateModelsPrsFstMdrDAOFirestation;
+import com.safetynet.safetynetalerts.repository.ImplEncapsulateModelsPrsFstMdrDAOFirestation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

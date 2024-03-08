@@ -1,13 +1,14 @@
 package com.safetynet.safetynetalerts.controller;
 
 import com.safetynet.safetynetalerts.model.Person;
-import com.safetynet.safetynetalerts.service.ImplEncapsulateModelsPrsFstMdrDAOPerson;
+import com.safetynet.safetynetalerts.repository.ImplEncapsulateModelsPrsFstMdrDAOPerson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -15,6 +16,9 @@ public class PersonController {
 
     @Autowired
     private ImplEncapsulateModelsPrsFstMdrDAOPerson personService;
+
+    @Autowired
+    private com.safetynet.safetynetalerts.service.URI uriService;
 
     @PostMapping("/person")
     public ResponseEntity<Person> addPerson(@RequestBody Person person) {
@@ -41,16 +45,15 @@ public class PersonController {
     }
 
 
-//    @GetMapping("/firestation")
-//    public Person getPersonCoverByFirestation(@RequestParam(name = "stationNumber", required = false) String stationNumber) {
-//
-//        return "Donner les personnes couvertes par la station";
-//    }
-//
-//    @GetMapping("/childAlert")
-//    public Person getMinorChildAtAddress(@RequestParam(name = "address") String address){
-//
-//    }
+    @GetMapping("/firestation")
+    public List<String> getPersonCoverByFirestation(@RequestParam(name = "stationNumber", required = false) String stationNumber) {
+        return uriService.getPersonCoverByFirestation(stationNumber);
+    }
+
+    @GetMapping("/childAlert")
+    public List<String> getMinorChildAtAddress(@RequestParam(name = "address") String address){
+        return uriService.getChildAtAddress(address);
+    }
 //
 //    @GetMapping("/phoneAlert")
 //    public Person getPhoneCoverByFirestation(@RequestParam(name = "firestation") String firestation){

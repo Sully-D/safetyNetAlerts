@@ -1,8 +1,7 @@
-package com.safetynet.safetynetalerts.service;
+package com.safetynet.safetynetalerts.repository;
 
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import com.safetynet.safetynetalerts.model.Person;
-import com.safetynet.safetynetalerts.repository.JsonToObject;
 import lombok.Data;
 import org.springframework.stereotype.Repository;
 
