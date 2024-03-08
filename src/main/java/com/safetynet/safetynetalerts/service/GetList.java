@@ -11,11 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class GetList {
@@ -102,5 +98,17 @@ public class GetList {
             }
         }
         return persons;
+    }
+
+    public Map<String, String> convertListToMap (List<String> listToConvert){
+
+        Map<String, String> map = new HashMap<>();
+        for (String str : listToConvert) {
+            String[] keyValuePair = str.split(":");
+            if (keyValuePair.length == 2) {
+                map.put(keyValuePair[0].trim(), keyValuePair[1].trim());
+            }
+        }
+        return map;
     }
 }

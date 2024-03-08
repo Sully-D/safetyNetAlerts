@@ -54,11 +54,11 @@ public class PersonController {
     public List<String> getMinorChildAtAddress(@RequestParam(name = "address") String address){
         return uriService.getChildAtAddress(address);
     }
-//
-//    @GetMapping("/phoneAlert")
-//    public Person getPhoneCoverByFirestation(@RequestParam(name = "firestation") String firestation){
-//
-//    }
+
+    @GetMapping("/phoneAlert")
+    public List<String> getPhoneCoverByFirestation(@RequestParam(name = "firestation") String firestation){
+        return uriService.phoneNumberByFirestation(firestation);
+    }
 //
 //    @GetMapping("/fire")
 //    public Person getPersonAndFirestationByAddress(@RequestParam(name = "address") String address){

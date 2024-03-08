@@ -3,10 +3,7 @@ package com.safetynet.safetynetalerts.service;
 import com.safetynet.safetynetalerts.model.Person;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class URI {
@@ -32,8 +29,8 @@ public class URI {
         }
 
         List<String> listPersonCoverByFirestation = new ArrayList<>();
-        listPersonCoverByFirestation.add("Adult : " + major);
-        listPersonCoverByFirestation.add("Minor : " + minor);
+        String[] nbAdultAndMinor = {"nbAdult="+major, "nbMinor="+minor};
+        listPersonCoverByFirestation.add(Arrays.toString(nbAdultAndMinor));
         listPersonCoverByFirestation.add(listAdultAndChild.toString());
 
         return listPersonCoverByFirestation;
@@ -76,15 +73,15 @@ public class URI {
 
     public List<String> phoneNumberByFirestation(String firestationNumber){
 
-        URI uri = new URI();
-        List<String> listPersonByFirestation = uri.getPersonCoverByFirestation(firestationNumber);
+        GetList getList = new GetList();
+        List<String> addressStation = getList.getAddressFirestationByNumber(firestationNumber);
+        List<Person> personCoverByFirestation = getList.getPersonByAddressStation(addressStation);
         List<String> listPhone = new ArrayList<>();
 
-//        listPersonByFirestation.forEach(phone -> {
-//            listPhone.add(phone.)
-//        });
+        for (Person person : personCoverByFirestation) {
+            listPhone.add(person.getPhone());
+        }
 
-
-        return null;
+        return listPhone;
     }
 }

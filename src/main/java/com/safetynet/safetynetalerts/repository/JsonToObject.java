@@ -6,6 +6,7 @@ import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class JsonToObject {
     private InputStream loadJsonFileAsStream() {
@@ -41,5 +42,19 @@ public class JsonToObject {
             throw new RuntimeException("Erreur lors de l'écriture du fichier JSON", e);
         }
         return true;
+    }
+
+    public String writeListToJson(List<String> listToConvert){
+        try {
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            String json = mapper.writeValueAsString(listToConvert);
+
+            return json;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
