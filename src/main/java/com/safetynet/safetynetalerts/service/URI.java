@@ -76,10 +76,17 @@ public class URI {
         GetList getList = new GetList();
         List<String> addressStation = getList.getAddressFirestationByNumber(firestationNumber);
         List<Person> personCoverByFirestation = getList.getPersonByAddressStation(addressStation);
+        List<String> tempListPhone = new ArrayList<>();
         List<String> listPhone = new ArrayList<>();
 
         for (Person person : personCoverByFirestation) {
-            listPhone.add(person.getPhone());
+            tempListPhone.add(person.getPhone());
+        }
+
+        for (String phone : tempListPhone) {
+            if (!listPhone.contains(phone)){
+                listPhone.add(phone);
+            }
         }
 
         return listPhone;
