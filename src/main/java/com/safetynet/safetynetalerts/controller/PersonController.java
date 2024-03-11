@@ -59,11 +59,11 @@ public class PersonController {
     public List<String> getPhoneCoverByFirestation(@RequestParam(name = "firestation") String firestation){
         return uriService.phoneNumberByFirestation(firestation);
     }
-//
-//    @GetMapping("/fire")
-//    public Person getPersonAndFirestationByAddress(@RequestParam(name = "address") String address){
-//
-//    }
+
+    @GetMapping("/fire")
+    public List<String> getPersonAndFirestationNumberByAddress(@RequestParam(name = "address") String address){
+        return uriService.getPersonAndFirestationNumberByAddress(address);
+    }
 //
 //    @GetMapping("/flood/stations")
 //    public Person getHomeCoverByFirestation(@RequestParam(name = "stations") String stations){

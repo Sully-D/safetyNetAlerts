@@ -8,6 +8,8 @@ import java.util.*;
 @Service
 public class URI {
 
+    GetList getList = new GetList();
+
     public List<String> getPersonCoverByFirestation(String stationNumber) {
 
         int major = 0;
@@ -15,13 +17,14 @@ public class URI {
 
         Map<String, String> population = new HashMap<>();
 
-        GetList getList = new GetList();
+
         List<String> addressStation = getList.getAddressFirestationByNumber(stationNumber);
         List<Person> personCoverByFirestation = getList.getPersonByAddressStation(addressStation);
         List<Map<String, String>> listAdultAndChild = getList.getAdultAndChild(personCoverByFirestation);
 
         for (Map<String, String> person : listAdultAndChild){
-            if (person.containsKey("Adult")){
+            int year = Integer.parseInt(person.get("year"));
+            if (year > 18){
                 major++;
             } else {
                 minor++;
@@ -41,26 +44,26 @@ public class URI {
         List<String> childAtAddress = new ArrayList<>();
         List<String> adultAtAddress = new ArrayList<>();
         List<String> personAtAddress = new ArrayList<>();
+        Map<String, String> child = new HashMap<>();
+        Map<String, String> adult = new HashMap<>();
 
-        GetList getList = new GetList();
         List<Person> listPersonAtAddress = getList.getPersonByAddress(address);
-        List<Map<String, String>> listAdultAndChild = getList.getAdultAndChild(listPersonAtAddress);
+        List<Map <String, String>> listAdultAndChild = getList.getAdultAndChild(listPersonAtAddress);
 
-        listAdultAndChild.forEach(map -> {
-            Map<String, String> child = new HashMap<>();
-            Map<String, String> adult = new HashMap<>();
-            if (map.containsKey("Child")) {
-                child.put("lastName", map.get("lastName"));
-                child.put("firstName", map.get("firstName"));
-                child.put("Child", map.get("Child"));
+        for (Map <String, String> person : listAdultAndChild){
+            int year = Integer.parseInt(person.get("year"));
+            if (year <= 18){
+                child.put("lastName", person.get("lastName"));
+                child.put("firstName", person.get("firstName"));
+                child.put("Child", person.get("Child"));
                 childAtAddress.add(child.toString());
-            } else if (map.containsKey("Adult")) {
-                adult.put("lastName", map.get("lastName"));
-                adult.put("firstName", map.get("firstName"));
-                adult.put("Adult", map.get("Adult"));
+            } else {
+                adult.put("lastName", person.get("lastName"));
+                adult.put("firstName", person.get("firstName"));
+                adult.put("Adult", person.get("Adult"));
                 adultAtAddress.add(adult.toString());
             }
-        });
+        }
 
         if (childAtAddress.isEmpty()) {
             return personAtAddress;
@@ -73,7 +76,6 @@ public class URI {
 
     public List<String> phoneNumberByFirestation(String firestationNumber){
 
-        GetList getList = new GetList();
         List<String> addressStation = getList.getAddressFirestationByNumber(firestationNumber);
         List<Person> personCoverByFirestation = getList.getPersonByAddressStation(addressStation);
         List<String> tempListPhone = new ArrayList<>();
@@ -90,5 +92,31 @@ public class URI {
         }
 
         return listPhone;
+    }
+
+    public List<String> getPersonAndFirestationNumberByAddress(String address){
+
+        List<String> personAndFirestationNumber = new ArrayList<>();
+        List<String> listPersonAndFirestationNumberByAddress = new ArrayList<>();
+
+        List<Person> personLeaveInAddress = getList.getPersonByAddress(address);
+        String numberFirestationByAddress = getList.getNumberFirestationByAddress(address);
+        List<Map<String, String>> yearPerson = getList.getAdultAndChild(personLeaveInAddress);
+
+        for (Person person : personLeaveInAddress){
+            for (Map<String, String> personYearOld : yearPerson){
+                if (person.getFirstName().contains(personYearOld.get("firstName")) &&
+                        person.getLastName().contains(personYearOld.get("lastName"))){
+
+                    personAndFirestationNumber.add(getList.getMedicalRecord(personYearOld.get("firstName"),
+                            personYearOld.get("lastName")).toString());
+                    personAndFirestationNumber.add("Phone:" + person.getPhone());
+                    personAndFirestationNumber.add("Age:" + personYearOld.get("year"));
+                    personAndFirestationNumber.add("Number Firestation:" + numberFirestationByAddress);
+                }
+            }
+        }
+
+        return personAndFirestationNumber;
     }
 }

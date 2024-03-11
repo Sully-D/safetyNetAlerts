@@ -50,9 +50,9 @@ public class GetList {
     }
 
 
-    public List<Map<String, String>> getAdultAndChild(List<Person> personList){
+    public List<Map <String, String>> getAdultAndChild(List<Person> personList){
 
-        List<Map<String, String>> population = new ArrayList<>();
+        List<Map <String, String>> population = new ArrayList<>();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         LocalDate currentDate = LocalDate.now();
@@ -66,15 +66,11 @@ public class GetList {
                     Period age = Period.between(birthDate, currentDate);
                     int years = age.getYears();
                     Map<String, String> entry = new HashMap<>();
-                    if (years > 18) {
-                        entry.put("Adult", String.valueOf(years));
-                    } else {
-                        entry.put("Child", String.valueOf(years));
-                    }
                     entry.put("firstName", person.getFirstName());
                     entry.put("lastName", person.getLastName());
                     entry.put("address", person.getAddress());
                     entry.put("phone", person.getPhone());
+                    entry.put("year", String.valueOf(years) + " years old");
 
                     population.add(entry);
                 }
@@ -100,15 +96,32 @@ public class GetList {
         return persons;
     }
 
-    public Map<String, String> convertListToMap (List<String> listToConvert){
+    public String getNumberFirestationByAddress (String address){
+        List<Firestation> firestationList = readJsonData.getFirestationList();
 
-        Map<String, String> map = new HashMap<>();
-        for (String str : listToConvert) {
-            String[] keyValuePair = str.split(":");
-            if (keyValuePair.length == 2) {
-                map.put(keyValuePair[0].trim(), keyValuePair[1].trim());
+        for (Firestation firestation : firestationList) {
+            if (firestation.getAddress().equals(address)){
+                return firestation.getStation();
             }
         }
-        return map;
+        return null;
+    }
+
+    public List<String> getMedicalRecord (String firstName, String lastName){
+        List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
+        List<String> infoMedicalRecord = new ArrayList<>();
+
+
+        for (Medicalrecord medicalrecord : medicalrecordList){
+            if (medicalrecord.getLastName().equals(lastName) && medicalrecord.getFirstName().equals(firstName)){
+                String fName = medicalrecord.getFirstName();
+                String lName = medicalrecord.getLastName();
+                String medications = medicalrecord.getMedications().toString();
+                String allergies = medicalrecord.getAllergies().toString();
+                infoMedicalRecord.add("FirstName:"+fName + ", LastName:"+lName + ", Medications:"+medications + ", Allergies:"+allergies);
+            }
+        }
+        System.out.println(infoMedicalRecord);
+        return infoMedicalRecord;
     }
 }
