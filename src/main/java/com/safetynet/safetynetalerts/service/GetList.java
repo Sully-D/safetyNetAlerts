@@ -50,7 +50,7 @@ public class GetList {
     }
 
 
-    public List<Map <String, String>> getAdultAndChild(List<Person> personList){
+    public List<Map <String, String>> getYear(List<Person> personList){
 
         List<Map <String, String>> population = new ArrayList<>();
 
@@ -107,9 +107,9 @@ public class GetList {
         return null;
     }
 
-    public List<String> getMedicalRecord (String firstName, String lastName){
+    public Map<String, String> getMedicalRecord (String firstName, String lastName){
         List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
-        List<String> infoMedicalRecord = new ArrayList<>();
+        Map<String, String> infoMedicalRecord = new HashMap<>();
 
 
         for (Medicalrecord medicalrecord : medicalrecordList){
@@ -118,10 +118,13 @@ public class GetList {
                 String lName = medicalrecord.getLastName();
                 String medications = medicalrecord.getMedications().toString();
                 String allergies = medicalrecord.getAllergies().toString();
-                infoMedicalRecord.add("FirstName:"+fName + ", LastName:"+lName + ", Medications:"+medications + ", Allergies:"+allergies);
+
+                infoMedicalRecord.put("firstName", fName);
+                infoMedicalRecord.put("lastName", lName);
+                infoMedicalRecord.put("medications", medications);
+                infoMedicalRecord.put("allergies", allergies);
             }
         }
-        System.out.println(infoMedicalRecord);
         return infoMedicalRecord;
     }
 }

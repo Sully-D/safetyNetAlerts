@@ -20,7 +20,7 @@ public class URI {
 
         List<String> addressStation = getList.getAddressFirestationByNumber(stationNumber);
         List<Person> personCoverByFirestation = getList.getPersonByAddressStation(addressStation);
-        List<Map<String, String>> listAdultAndChild = getList.getAdultAndChild(personCoverByFirestation);
+        List<Map<String, String>> listAdultAndChild = getList.getYear(personCoverByFirestation);
 
         for (Map<String, String> person : listAdultAndChild){
             int year = Integer.parseInt(person.get("year"));
@@ -48,7 +48,7 @@ public class URI {
         Map<String, String> adult = new HashMap<>();
 
         List<Person> listPersonAtAddress = getList.getPersonByAddress(address);
-        List<Map <String, String>> listAdultAndChild = getList.getAdultAndChild(listPersonAtAddress);
+        List<Map <String, String>> listAdultAndChild = getList.getYear(listPersonAtAddress);
 
         for (Map <String, String> person : listAdultAndChild){
             int year = Integer.parseInt(person.get("year"));
@@ -96,27 +96,39 @@ public class URI {
 
     public List<String> getPersonAndFirestationNumberByAddress(String address){
 
-        List<String> personAndFirestationNumber = new ArrayList<>();
-        List<String> listPersonAndFirestationNumberByAddress = new ArrayList<>();
+        Map<String, String> personAndFirestationNumber = new HashMap<>();
+        List<String> personAndFirestationNumberByAddress = new ArrayList<>();
 
         List<Person> personLeaveInAddress = getList.getPersonByAddress(address);
         String numberFirestationByAddress = getList.getNumberFirestationByAddress(address);
-        List<Map<String, String>> yearPerson = getList.getAdultAndChild(personLeaveInAddress);
+        List<Map<String, String>> yearPerson = getList.getYear(personLeaveInAddress);
 
         for (Person person : personLeaveInAddress){
             for (Map<String, String> personYearOld : yearPerson){
                 if (person.getFirstName().contains(personYearOld.get("firstName")) &&
                         person.getLastName().contains(personYearOld.get("lastName"))){
 
-                    personAndFirestationNumber.add(getList.getMedicalRecord(personYearOld.get("firstName"),
-                            personYearOld.get("lastName")).toString());
-                    personAndFirestationNumber.add("Phone:" + person.getPhone());
-                    personAndFirestationNumber.add("Age:" + personYearOld.get("year"));
-                    personAndFirestationNumber.add("Number Firestation:" + numberFirestationByAddress);
+                    Map<String, String> medicalRecord = getList.getMedicalRecord(personYearOld.get("firstName"),
+                            personYearOld.get("lastName"));
+                    personAndFirestationNumber.put("numberFirestation", numberFirestationByAddress);
+                    personAndFirestationNumber.put("lastName", person.getLastName());
+                    personAndFirestationNumber.put("firstName", person.getFirstName());
+                    personAndFirestationNumber.put("age", personYearOld.get("year"));
+                    personAndFirestationNumber.put("medications", medicalRecord.get("medications"));
+                    personAndFirestationNumber.put("allergies", medicalRecord.get("allergies"));
+                    personAndFirestationNumber.put("phone", person.getPhone());
+
+                    personAndFirestationNumberByAddress.add("Firestation:" + personAndFirestationNumber.get("numberFirestation") +
+                            ", LastName:" + personAndFirestationNumber.get("lastName") +
+                            ", FirstName:" + personAndFirestationNumber.get("firstName") +
+                            ", Age:" + personAndFirestationNumber.get("age") +
+                            ", Medications:" + personAndFirestationNumber.get("medications") +
+                            ", Allergies:" + personAndFirestationNumber.get("allergies") +
+                            ", Phone:" + personAndFirestationNumber.get("phone"));
                 }
             }
         }
 
-        return personAndFirestationNumber;
+        return personAndFirestationNumberByAddress;
     }
 }

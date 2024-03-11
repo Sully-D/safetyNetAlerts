@@ -64,12 +64,12 @@ public class PersonController {
     public List<String> getPersonAndFirestationNumberByAddress(@RequestParam(name = "address") String address){
         return uriService.getPersonAndFirestationNumberByAddress(address);
     }
-//
-//    @GetMapping("/flood/stations")
-//    public Person getHomeCoverByFirestation(@RequestParam(name = "stations") String stations){
-//
-//    }
-//
+
+    @GetMapping("/flood/stations")
+    public Person getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
+        return null;
+    }
+
 //    @GetMapping("/personInfo")
 //    public Person getPersonInfo(@RequestParam(name = "firstname", lastname = "lastname") String firstname, String lastname) {
 //
