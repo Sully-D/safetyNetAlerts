@@ -15,5 +15,6 @@ public class AllInfoPerson {
     String medications;
     String allergies;
     String phone;
+    String email;
 
 }

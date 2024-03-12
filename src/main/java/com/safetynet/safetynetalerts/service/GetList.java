@@ -16,7 +16,7 @@ public class GetList {
     private static JsonToObject jsonToObject = new JsonToObject();
     private static EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
 
-    public List<String> getAddressFirestationByNumber(String stationNumber) {
+    public static List<String> getAddressFirestationByNumber(String stationNumber) {
 
         List<Firestation> firestationList = readJsonData.getFirestationList();
         List<String> addressStation = new ArrayList<>();
@@ -106,37 +106,20 @@ public class GetList {
 
     public List<AllInfoPerson> allInfosPerson (List <Person>  personByAddress, List<Map<String, String>> yearPerson){
 
-        AllInfoPerson allInfoPerson = new AllInfoPerson();
+
         Map<String, String> personAndFirestationNumber = new HashMap<>();
         List<AllInfoPerson>  personAndFirestationNumberByAddress = new ArrayList<>();
 
         for (Person person : personByAddress){
             for (Map<String, String> personYearOld : yearPerson){
+                AllInfoPerson allInfoPerson = new AllInfoPerson();
                 if (person.getFirstName().contains(personYearOld.get("firstName")) &&
                         person.getLastName().contains(personYearOld.get("lastName"))){
 
                     Map<String, String> medicalRecord = GetList.getMedicalRecord(personYearOld.get("firstName"),
                             personYearOld.get("lastName"));
                     String numberFirestationByAddress = GetList.getNumberFirestationByAddress(person.getAddress());
-//                    personAndFirestationNumber.put("numberFirestation", numberFirestationByAddress);
-//                    personAndFirestationNumber.put("address", person.getAddress());
-//                    personAndFirestationNumber.put("lastName", person.getLastName());
-//                    personAndFirestationNumber.put("firstName", person.getFirstName());
-//                    personAndFirestationNumber.put("age", personYearOld.get("year"));
-//                    personAndFirestationNumber.put("medications", medicalRecord.get("medications"));
-//                    personAndFirestationNumber.put("allergies", medicalRecord.get("allergies"));
-//                    personAndFirestationNumber.put("phone", person.getPhone());
-//
-//                    personAndFirestationNumberByAddress.add(
-//                        "firestation:" + personAndFirestationNumber.get("numberFirestation") +
-//                        ", address:" + personAndFirestationNumber.get("address") +
-//                        ", lastName:" + personAndFirestationNumber.get("lastName") +
-//                        ", firstName:" + personAndFirestationNumber.get("firstName") +
-//                        ", age:" + personAndFirestationNumber.get("age") +
-//                        ", medications:" + personAndFirestationNumber.get("medications") +
-//                        ", allergies:" + personAndFirestationNumber.get("allergies") +
-//                        ", phone:" + personAndFirestationNumber.get("phone")
-//                    );
+
                     allInfoPerson.setFirestation(numberFirestationByAddress);
                     allInfoPerson.setAddress(person.getAddress());
                     allInfoPerson.setLastName(person.getLastName());
@@ -144,13 +127,14 @@ public class GetList {
                     allInfoPerson.setAge(personYearOld.get("year"));
                     allInfoPerson.setMedications(medicalRecord.get("medications"));
                     allInfoPerson.setAllergies(medicalRecord.get("allergies"));
+                    allInfoPerson.setEmail(person.getEmail());
                     allInfoPerson.setPhone(person.getPhone());
 
                     personAndFirestationNumberByAddress.add(allInfoPerson);
-
                 }
             }
         }
+
         return personAndFirestationNumberByAddress;
     }
 
@@ -175,12 +159,32 @@ public class GetList {
         return infoMedicalRecord;
     }
 
-    public List<String> groupByAddress(List<String> infosPersons){
+    public List<AllInfoPerson> sortByAddress(List<AllInfoPerson> infosPersons, List<String> addressFirestation){
 
-        for (String info : infosPersons){
+        List<AllInfoPerson> allInfoPeopleList = new ArrayList<>();
 
+        for (String address : addressFirestation){
+            for (AllInfoPerson person : infosPersons){
+                if (!allInfoPeopleList.contains(person.getFirstName()) &&
+                        !allInfoPeopleList.contains(person.getLastName())){
+                    if (person.getAddress().equals(address)){
+                        allInfoPeopleList.add(person);
+                    }
+                }
+            }
+        }
+        return allInfoPeopleList;
+    }
+
+    public List<String> allFirestationsAddress (List<String> listFirestationNumber){
+
+        List<String> addressFirestations = new ArrayList<>();
+
+        for (String number : listFirestationNumber){
+            List<String> addressFirestationByNumber = GetList.getAddressFirestationByNumber(number);
+            addressFirestations.addAll(addressFirestationByNumber);
         }
 
-        return null;
+        return addressFirestations;
     }
 }

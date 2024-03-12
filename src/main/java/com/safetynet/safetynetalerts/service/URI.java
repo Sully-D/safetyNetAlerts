@@ -2,6 +2,7 @@ package com.safetynet.safetynetalerts.service;
 
 import com.safetynet.safetynetalerts.model.AllInfoPerson;
 import com.safetynet.safetynetalerts.model.Person;
+import com.safetynet.safetynetalerts.repository.JsonToObject;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -99,28 +100,61 @@ public class URI {
 
         List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personLeaveInAddress, yearPerson);
 
-        // Formate en Json mais pas sûr de devoir l'utiliser
-//        JsonToObject jsonToObject = new JsonToObject();
-//        String formatToJson = jsonToObject.writeListToJson(allInfosPerson);
-        //return Collections.singletonList(formatToJson);
         return allInfosPerson;
     }
 
     public List<AllInfoPerson> getHomeCoverByFirestation(List<String> stationsNumbers){
 
-        List<String> addressFirestations = new ArrayList<>();
-        List<String> groupPersonByAddress = new ArrayList<>();
-
-        for (String number : stationsNumbers){
-            List<String> addressFirestationByNumber = getList.getAddressFirestationByNumber(number);
-            addressFirestations.addAll(addressFirestationByNumber);
-        }
+//        List<String> addressFirestations = new ArrayList<>();
+//        List<AllInfoPerson> groupPersonByAddress = new ArrayList<>();
+//
+//        for (String number : stationsNumbers){
+//            List<String> addressFirestationByNumber = getList.getAddressFirestationByNumber(number);
+//            addressFirestations.addAll(addressFirestationByNumber);
+//        }
+        List<String> addressFirestations = getList.allFirestationsAddress(stationsNumbers);
 
         List<Person> personByAddress = getList.getPersonByAddressStation(addressFirestations);
         List<Map<String, String>> listAgesPersons = getList.getYear(personByAddress);
 
         List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personByAddress,listAgesPersons);
 
-        return allInfosPerson;
+        List<AllInfoPerson> sortByAddress =  getList.sortByAddress(allInfosPerson, addressFirestations);
+
+        return sortByAddress;
+    }
+
+    public String getpersonsInfos(String firstName, String lastName){
+
+        List<String> stationsNumbers = List.of("1","2","3","4");
+        List<String> addressFirestations = getList.allFirestationsAddress(stationsNumbers);
+        List<Person> personByAddress = getList.getPersonByAddressStation(addressFirestations);
+        List<Map<String, String>> listAgesPersons = getList.getYear(personByAddress);
+        List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personByAddress,listAgesPersons);
+        List<AllInfoPerson> personInfos = new ArrayList<>();
+        List<String> formatePersonInfos = new ArrayList<>();
+
+        for (AllInfoPerson person : allInfosPerson){
+            if (person.getFirstName().equals(firstName) && person.getLastName().equals(lastName)){
+                personInfos.add(person);
+            }
+        }
+
+        for (AllInfoPerson info : personInfos){
+            formatePersonInfos.add(
+                    "firstName:"+info.getFirstName() +
+                            ", lastName:"+info.getLastName() +
+                            ", address:"+info.getAddress() +
+                            ", age:"+info.getAge() +
+                            ", email:"+info.getEmail() +
+                            ", medications:"+info.getMedications() +
+                            ", allergies"+info.getAllergies()
+            );
+        }
+
+        JsonToObject jsonToObject = new JsonToObject();
+        String personinfosToJson = jsonToObject.writeListToJson(formatePersonInfos);
+
+        return personinfosToJson;
     }
 }

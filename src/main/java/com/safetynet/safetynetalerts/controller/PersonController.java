@@ -71,11 +71,12 @@ public class PersonController {
         return uriService.getHomeCoverByFirestation(stations);
     }
 
-//    @GetMapping("/personInfo")
-//    public Person getPersonInfo(@RequestParam(name = "firstname", lastname = "lastname") String firstname, String lastname) {
-//
-//    }
-//
+    @GetMapping("/personInfo")
+    public String getPersonInfo(@RequestParam(name = "firstname") String firstname,
+                                             @RequestParam(name = "lastname") String lastname){
+        return uriService.getpersonsInfos(firstname, lastname);
+    }
+
 //    @GetMapping("/communityEmail")
 //    public Person getAllEmail(@RequestParam(name = "city") String city) {
 //
