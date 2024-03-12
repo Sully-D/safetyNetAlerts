@@ -1,5 +1,6 @@
 package com.safetynet.safetynetalerts.controller;
 
+import com.safetynet.safetynetalerts.model.AllInfoPerson;
 import com.safetynet.safetynetalerts.model.Person;
 import com.safetynet.safetynetalerts.repository.ImplEncapsulateModelsPrsFstMdrDAOPerson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,12 +62,12 @@ public class PersonController {
     }
 
     @GetMapping("/fire")
-    public List<String> getPersonAndFirestationNumberByAddress(@RequestParam(name = "address") String address){
+    public List<AllInfoPerson> getPersonAndFirestationNumberByAddress(@RequestParam(name = "address") String address){
         return uriService.getPersonAndFirestationNumberByAddress(address);
     }
 
     @GetMapping("/flood/stations")
-    public List<String> getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
+    public List<AllInfoPerson> getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
         return uriService.getHomeCoverByFirestation(stations);
     }
 

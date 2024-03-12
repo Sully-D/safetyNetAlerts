@@ -1,9 +1,6 @@
 package com.safetynet.safetynetalerts.service;
 
-import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
-import com.safetynet.safetynetalerts.model.Firestation;
-import com.safetynet.safetynetalerts.model.Medicalrecord;
-import com.safetynet.safetynetalerts.model.Person;
+import com.safetynet.safetynetalerts.model.*;
 import com.safetynet.safetynetalerts.repository.JsonToObject;
 import org.springframework.stereotype.Service;
 
@@ -107,10 +104,11 @@ public class GetList {
         return null;
     }
 
-    public List<String> allInfosPerson (List <Person>  personByAddress, List<Map<String, String>> yearPerson){
+    public List<AllInfoPerson> allInfosPerson (List <Person>  personByAddress, List<Map<String, String>> yearPerson){
 
+        AllInfoPerson allInfoPerson = new AllInfoPerson();
         Map<String, String> personAndFirestationNumber = new HashMap<>();
-        List<String>  personAndFirestationNumberByAddress = new ArrayList<>();
+        List<AllInfoPerson>  personAndFirestationNumberByAddress = new ArrayList<>();
 
         for (Person person : personByAddress){
             for (Map<String, String> personYearOld : yearPerson){
@@ -120,25 +118,36 @@ public class GetList {
                     Map<String, String> medicalRecord = GetList.getMedicalRecord(personYearOld.get("firstName"),
                             personYearOld.get("lastName"));
                     String numberFirestationByAddress = GetList.getNumberFirestationByAddress(person.getAddress());
-                    personAndFirestationNumber.put("numberFirestation", numberFirestationByAddress);
-                    personAndFirestationNumber.put("address", person.getAddress());
-                    personAndFirestationNumber.put("lastName", person.getLastName());
-                    personAndFirestationNumber.put("firstName", person.getFirstName());
-                    personAndFirestationNumber.put("age", personYearOld.get("year"));
-                    personAndFirestationNumber.put("medications", medicalRecord.get("medications"));
-                    personAndFirestationNumber.put("allergies", medicalRecord.get("allergies"));
-                    personAndFirestationNumber.put("phone", person.getPhone());
+//                    personAndFirestationNumber.put("numberFirestation", numberFirestationByAddress);
+//                    personAndFirestationNumber.put("address", person.getAddress());
+//                    personAndFirestationNumber.put("lastName", person.getLastName());
+//                    personAndFirestationNumber.put("firstName", person.getFirstName());
+//                    personAndFirestationNumber.put("age", personYearOld.get("year"));
+//                    personAndFirestationNumber.put("medications", medicalRecord.get("medications"));
+//                    personAndFirestationNumber.put("allergies", medicalRecord.get("allergies"));
+//                    personAndFirestationNumber.put("phone", person.getPhone());
+//
+//                    personAndFirestationNumberByAddress.add(
+//                        "firestation:" + personAndFirestationNumber.get("numberFirestation") +
+//                        ", address:" + personAndFirestationNumber.get("address") +
+//                        ", lastName:" + personAndFirestationNumber.get("lastName") +
+//                        ", firstName:" + personAndFirestationNumber.get("firstName") +
+//                        ", age:" + personAndFirestationNumber.get("age") +
+//                        ", medications:" + personAndFirestationNumber.get("medications") +
+//                        ", allergies:" + personAndFirestationNumber.get("allergies") +
+//                        ", phone:" + personAndFirestationNumber.get("phone")
+//                    );
+                    allInfoPerson.setFirestation(numberFirestationByAddress);
+                    allInfoPerson.setAddress(person.getAddress());
+                    allInfoPerson.setLastName(person.getLastName());
+                    allInfoPerson.setFirstName(person.getFirstName());
+                    allInfoPerson.setAge(personYearOld.get("year"));
+                    allInfoPerson.setMedications(medicalRecord.get("medications"));
+                    allInfoPerson.setAllergies(medicalRecord.get("allergies"));
+                    allInfoPerson.setPhone(person.getPhone());
 
-                    personAndFirestationNumberByAddress.add(
-                        "firestation:" + personAndFirestationNumber.get("numberFirestation") +
-                        ", address:" + personAndFirestationNumber.get("address") +
-                        ", lastName:" + personAndFirestationNumber.get("lastName") +
-                        ", firstName:" + personAndFirestationNumber.get("firstName") +
-                        ", age:" + personAndFirestationNumber.get("age") +
-                        ", medications:" + personAndFirestationNumber.get("medications") +
-                        ", allergies:" + personAndFirestationNumber.get("allergies") +
-                        ", phone:" + personAndFirestationNumber.get("phone")
-                    );
+                    personAndFirestationNumberByAddress.add(allInfoPerson);
+
                 }
             }
         }
@@ -164,5 +173,14 @@ public class GetList {
             }
         }
         return infoMedicalRecord;
+    }
+
+    public List<String> groupByAddress(List<String> infosPersons){
+
+        for (String info : infosPersons){
+
+        }
+
+        return null;
     }
 }

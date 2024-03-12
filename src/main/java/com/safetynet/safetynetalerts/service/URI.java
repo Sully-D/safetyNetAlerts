@@ -1,7 +1,7 @@
 package com.safetynet.safetynetalerts.service;
 
+import com.safetynet.safetynetalerts.model.AllInfoPerson;
 import com.safetynet.safetynetalerts.model.Person;
-import com.safetynet.safetynetalerts.repository.JsonToObject;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -92,12 +92,12 @@ public class URI {
         return listPhone;
     }
 
-    public List<String> getPersonAndFirestationNumberByAddress(String address){
+    public List<AllInfoPerson> getPersonAndFirestationNumberByAddress(String address){
 
         List<Person> personLeaveInAddress = getList.getPersonByAddress(address);
         List<Map<String, String>> yearPerson = getList.getYear(personLeaveInAddress);
 
-        List<String> allInfosPerson = getList.allInfosPerson(personLeaveInAddress, yearPerson);
+        List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personLeaveInAddress, yearPerson);
 
         // Formate en Json mais pas sûr de devoir l'utiliser
 //        JsonToObject jsonToObject = new JsonToObject();
@@ -106,7 +106,7 @@ public class URI {
         return allInfosPerson;
     }
 
-    public List<String> getHomeCoverByFirestation(List<String> stationsNumbers){
+    public List<AllInfoPerson> getHomeCoverByFirestation(List<String> stationsNumbers){
 
         List<String> addressFirestations = new ArrayList<>();
         List<String> groupPersonByAddress = new ArrayList<>();
@@ -119,10 +119,8 @@ public class URI {
         List<Person> personByAddress = getList.getPersonByAddressStation(addressFirestations);
         List<Map<String, String>> listAgesPersons = getList.getYear(personByAddress);
 
-        List<String> allInfosPerson = getList.allInfosPerson(personByAddress,listAgesPersons);
+        List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personByAddress,listAgesPersons);
 
-        System.out.println(allInfosPerson);
-
-        return null;
+        return allInfosPerson;
     }
 }
