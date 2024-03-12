@@ -19,7 +19,7 @@ public class URI {
 
         List<String> addressStation = getList.getAddressFirestationByNumber(stationNumber);
         List<Person> personCoverByFirestation = getList.getPersonByAddressStation(addressStation);
-        List<Map<String, String>> listAdultAndChild = getList.getYear(personCoverByFirestation);
+        List<Map<String, String>> listAdultAndChild = getList.getAge(personCoverByFirestation);
 
         for (Map<String, String> person : listAdultAndChild){
             int year = Integer.parseInt(person.get("year"));
@@ -47,7 +47,7 @@ public class URI {
         Map<String, String> adult = new HashMap<>();
 
         List<Person> listPersonAtAddress = getList.getPersonByAddress(address);
-        List<Map <String, String>> listAdultAndChild = getList.getYear(listPersonAtAddress);
+        List<Map <String, String>> listAdultAndChild = getList.getAge(listPersonAtAddress);
 
         for (Map <String, String> person : listAdultAndChild){
             int year = Integer.parseInt(person.get("year"));
@@ -96,7 +96,7 @@ public class URI {
     public List<AllInfoPerson> getPersonAndFirestationNumberByAddress(String address){
 
         List<Person> personLeaveInAddress = getList.getPersonByAddress(address);
-        List<Map<String, String>> yearPerson = getList.getYear(personLeaveInAddress);
+        List<Map<String, String>> yearPerson = getList.getAge(personLeaveInAddress);
 
         List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personLeaveInAddress, yearPerson);
 
@@ -115,7 +115,7 @@ public class URI {
         List<String> addressFirestations = getList.allFirestationsAddress(stationsNumbers);
 
         List<Person> personByAddress = getList.getPersonByAddressStation(addressFirestations);
-        List<Map<String, String>> listAgesPersons = getList.getYear(personByAddress);
+        List<Map<String, String>> listAgesPersons = getList.getAge(personByAddress);
 
         List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personByAddress,listAgesPersons);
 
@@ -126,10 +126,10 @@ public class URI {
 
     public String getpersonsInfos(String firstName, String lastName){
 
-        List<String> stationsNumbers = List.of("1","2","3","4");
+        List<String> stationsNumbers = getList.getFirestationNumber();
         List<String> addressFirestations = getList.allFirestationsAddress(stationsNumbers);
         List<Person> personByAddress = getList.getPersonByAddressStation(addressFirestations);
-        List<Map<String, String>> listAgesPersons = getList.getYear(personByAddress);
+        List<Map<String, String>> listAgesPersons = getList.getAge(personByAddress);
         List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personByAddress,listAgesPersons);
         List<AllInfoPerson> personInfos = new ArrayList<>();
         List<String> formatePersonInfos = new ArrayList<>();

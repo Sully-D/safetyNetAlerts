@@ -10,6 +10,7 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+
 @Service
 public class GetList {
 
@@ -18,46 +19,46 @@ public class GetList {
 
     public static List<String> getAddressFirestationByNumber(String stationNumber) {
 
-        List<Firestation> firestationList = readJsonData.getFirestationList();
-        List<String> addressStation = new ArrayList<>();
+        List<Firestation> listFirestations = readJsonData.getFirestationList();
+        List<String> listAddressStations = new ArrayList<>();
 
-        for (Firestation firestation : firestationList) {
+        for (Firestation firestation : listFirestations) {
             if (firestation.getStation().equals(stationNumber)){
-                addressStation.add(firestation.getAddress());
+                listAddressStations.add(firestation.getAddress());
             }
         }
-        return addressStation;
+        return listAddressStations;
     }
 
     public List<Person> getPersonByAddressStation(List<String> addressStation){
 
-        List<Person> personList = readJsonData.getPersonList();
-        List<Person> personCover = new ArrayList<>();
+        List<Person> listPersons = readJsonData.getPersonList();
+        List<Person> listPersonsCoverByStation = new ArrayList<>();
 
-        for (Person person : personList) {
+        for (Person person : listPersons) {
             if (addressStation != null) {
                 if (addressStation.contains(person.getAddress())) {
-                    personCover.add(person);
+                    listPersonsCoverByStation.add(person);
                 }
             } else {
                 System.out.println("ERROR : ADDRESS FIRESTATION EMPTY");
             }
         }
-        return personCover;
+        return listPersonsCoverByStation;
     }
 
 
-    public List<Map <String, String>> getYear(List<Person> personList){
+    public List<Map <String, String>> getAge(List<Person> listPersons){
 
-        List<Map <String, String>> population = new ArrayList<>();
+        List<Map <String, String>> listPersonsAges = new ArrayList<>();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         LocalDate currentDate = LocalDate.now();
 
-        List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
+        List<Medicalrecord> listMedicalRecords = readJsonData.getMedicalrecordList();
 
-        for (Person person : personList){
-            for (Medicalrecord medicalrecord : medicalrecordList){
+        for (Person person : listPersons){
+            for (Medicalrecord medicalrecord : listMedicalRecords){
                 if (medicalrecord.getFirstName().equals(person.getFirstName()) && medicalrecord.getLastName().equals(person.getLastName())){
                     LocalDate birthDate = LocalDate.parse(medicalrecord.getBirthdate(), formatter);
                     Period age = Period.between(birthDate, currentDate);
@@ -69,34 +70,34 @@ public class GetList {
                     entry.put("phone", person.getPhone());
                     entry.put("year", String.valueOf(years));
 
-                    population.add(entry);
+                    listPersonsAges.add(entry);
                 }
             }
         }
-        return population;
+        return listPersonsAges;
     }
 
     public List<Person> getPersonByAddress(String address){
 
-        List<Person> personList = readJsonData.getPersonList();
-        List<Person> persons = new ArrayList<>();
+        List<Person> listPersons = readJsonData.getPersonList();
+        List<Person> listPersonsByAddress = new ArrayList<>();
 
-        for (Person person : personList) {
+        for (Person person : listPersons) {
             if (address != null) {
                 if (person.getAddress().contains(address)) {
-                    persons.add(person);
+                    listPersonsByAddress.add(person);
                 }
             } else {
                 System.out.println("ERROR : ADDRESS EMPTY");
             }
         }
-        return persons;
+        return listPersonsByAddress;
     }
 
     public static String getNumberFirestationByAddress(String address){
-        List<Firestation> firestationList = readJsonData.getFirestationList();
+        List<Firestation> listFirestations = readJsonData.getFirestationList();
 
-        for (Firestation firestation : firestationList) {
+        for (Firestation firestation : listFirestations) {
             if (firestation.getAddress().equals(address)){
                 return firestation.getStation();
             }
@@ -104,101 +105,117 @@ public class GetList {
         return null;
     }
 
-    public List<AllInfoPerson> allInfosPerson (List <Person>  personByAddress, List<Map<String, String>> yearPerson){
+    public List<AllInfoPerson> allInfosPerson (List <Person>  listPersonsByAddress, List<Map<String, String>> listPeronsAges){
 
+        List<AllInfoPerson>  listPersonsAndFirestationsNumberByAddress = new ArrayList<>();
 
-        Map<String, String> personAndFirestationNumber = new HashMap<>();
-        List<AllInfoPerson>  personAndFirestationNumberByAddress = new ArrayList<>();
+        for (Person person : listPersonsByAddress){
+            for (Map<String, String> personAge : listPeronsAges){
 
-        for (Person person : personByAddress){
-            for (Map<String, String> personYearOld : yearPerson){
                 AllInfoPerson allInfoPerson = new AllInfoPerson();
-                if (person.getFirstName().contains(personYearOld.get("firstName")) &&
-                        person.getLastName().contains(personYearOld.get("lastName"))){
 
-                    Map<String, String> medicalRecord = GetList.getMedicalRecord(personYearOld.get("firstName"),
-                            personYearOld.get("lastName"));
+                if (person.getFirstName().contains(personAge.get("firstName")) &&
+                        person.getLastName().contains(personAge.get("lastName"))){
+
+                    Map<String, String> mapMedicalRecords = GetList.getMedicalRecord(personAge.get("firstName"),
+                            personAge.get("lastName"));
                     String numberFirestationByAddress = GetList.getNumberFirestationByAddress(person.getAddress());
 
                     allInfoPerson.setFirestation(numberFirestationByAddress);
                     allInfoPerson.setAddress(person.getAddress());
                     allInfoPerson.setLastName(person.getLastName());
                     allInfoPerson.setFirstName(person.getFirstName());
-                    allInfoPerson.setAge(personYearOld.get("year"));
-                    allInfoPerson.setMedications(medicalRecord.get("medications"));
-                    allInfoPerson.setAllergies(medicalRecord.get("allergies"));
+                    allInfoPerson.setAge(personAge.get("year"));
+                    allInfoPerson.setMedications(mapMedicalRecords.get("medications"));
+                    allInfoPerson.setAllergies(mapMedicalRecords.get("allergies"));
                     allInfoPerson.setEmail(person.getEmail());
                     allInfoPerson.setPhone(person.getPhone());
 
-                    personAndFirestationNumberByAddress.add(allInfoPerson);
+                    listPersonsAndFirestationsNumberByAddress.add(allInfoPerson);
                 }
             }
         }
 
-        return personAndFirestationNumberByAddress;
+        return listPersonsAndFirestationsNumberByAddress;
     }
 
     public static Map<String, String> getMedicalRecord(String firstName, String lastName){
-        List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
-        Map<String, String> infoMedicalRecord = new HashMap<>();
+        List<Medicalrecord> listMedicalRecords = readJsonData.getMedicalrecordList();
+        Map<String, String> mapInfoMedicalRecords = new HashMap<>();
 
 
-        for (Medicalrecord medicalrecord : medicalrecordList){
+        for (Medicalrecord medicalrecord : listMedicalRecords){
             if (medicalrecord.getLastName().equals(lastName) && medicalrecord.getFirstName().equals(firstName)){
+
                 String fName = medicalrecord.getFirstName();
                 String lName = medicalrecord.getLastName();
                 String medications = medicalrecord.getMedications().toString();
                 String allergies = medicalrecord.getAllergies().toString();
 
-                infoMedicalRecord.put("firstName", fName);
-                infoMedicalRecord.put("lastName", lName);
-                infoMedicalRecord.put("medications", medications);
-                infoMedicalRecord.put("allergies", allergies);
+                mapInfoMedicalRecords.put("firstName", fName);
+                mapInfoMedicalRecords.put("lastName", lName);
+                mapInfoMedicalRecords.put("medications", medications);
+                mapInfoMedicalRecords.put("allergies", allergies);
             }
         }
-        return infoMedicalRecord;
+        return mapInfoMedicalRecords;
     }
 
-    public List<AllInfoPerson> sortByAddress(List<AllInfoPerson> infosPersons, List<String> addressFirestation){
+    public List<AllInfoPerson> sortByAddress(List<AllInfoPerson> listInfoPersons, List<String> listFirestationAddress){
 
-        List<AllInfoPerson> allInfoPeopleList = new ArrayList<>();
+        List<AllInfoPerson> listAllInfoPersons = new ArrayList<>();
 
-        for (String address : addressFirestation){
-            for (AllInfoPerson person : infosPersons){
-                if (!allInfoPeopleList.contains(person.getFirstName()) &&
-                        !allInfoPeopleList.contains(person.getLastName())){
+        for (String address : listFirestationAddress){
+            for (AllInfoPerson person : listInfoPersons){
+                if (!listAllInfoPersons.contains(person.getFirstName()) &&
+                        !listAllInfoPersons.contains(person.getLastName())){
                     if (person.getAddress().equals(address)){
-                        allInfoPeopleList.add(person);
+                        listAllInfoPersons.add(person);
                     }
                 }
             }
         }
-        return allInfoPeopleList;
+        return listAllInfoPersons;
     }
 
-    public List<String> allFirestationsAddress (List<String> listFirestationNumber){
+    public List<String> allFirestationsAddress (List<String> listFirestationsNumbers){
 
-        List<String> addressFirestations = new ArrayList<>();
+        List<String> listFirestationsAddress = new ArrayList<>();
 
-        for (String number : listFirestationNumber){
-            List<String> addressFirestationByNumber = GetList.getAddressFirestationByNumber(number);
-            addressFirestations.addAll(addressFirestationByNumber);
+        for (String number : listFirestationsNumbers){
+
+            List<String> listFirestationsAddressByNumber = GetList.getAddressFirestationByNumber(number);
+
+            listFirestationsAddress.addAll(listFirestationsAddressByNumber);
         }
 
-        return addressFirestations;
+        return listFirestationsAddress;
     }
 
     public List<String> getEmailByCity (String city){
 
-        List<Person> persons = readJsonData.getPersonList();
-        List<String> emails = new ArrayList<>();
+        List<Person> listPerons = readJsonData.getPersonList();
+        List<String> listEmails = new ArrayList<>();
 
-        for (Person person : persons){
+        for (Person person : listPerons){
             if (person.getCity().equals(city)){
-                emails.add(person.getEmail());
+                listEmails.add(person.getEmail());
             }
         }
 
-        return emails;
+        return listEmails;
+    }
+
+    public List<String> getFirestationNumber(){
+
+        List<Firestation> listFirestationsNumbers = readJsonData.getFirestationList();
+        List<String> listNumbers = new ArrayList<>();
+
+        for (Firestation firestation : listFirestationsNumbers){
+            if (!listNumbers.contains(firestation.getStation())){
+                listNumbers.add(firestation.getStation());
+            }
+        }
+        return listNumbers;
     }
 }
