@@ -1,6 +1,7 @@
 package com.safetynet.safetynetalerts.service;
 
 import com.safetynet.safetynetalerts.model.Person;
+import com.safetynet.safetynetalerts.repository.JsonToObject;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -14,9 +15,6 @@ public class URI {
 
         int major = 0;
         int minor = 0;
-
-        Map<String, String> population = new HashMap<>();
-
 
         List<String> addressStation = getList.getAddressFirestationByNumber(stationNumber);
         List<Person> personCoverByFirestation = getList.getPersonByAddressStation(addressStation);
@@ -96,39 +94,35 @@ public class URI {
 
     public List<String> getPersonAndFirestationNumberByAddress(String address){
 
-        Map<String, String> personAndFirestationNumber = new HashMap<>();
-        List<String> personAndFirestationNumberByAddress = new ArrayList<>();
-
         List<Person> personLeaveInAddress = getList.getPersonByAddress(address);
-        String numberFirestationByAddress = getList.getNumberFirestationByAddress(address);
         List<Map<String, String>> yearPerson = getList.getYear(personLeaveInAddress);
 
-        for (Person person : personLeaveInAddress){
-            for (Map<String, String> personYearOld : yearPerson){
-                if (person.getFirstName().contains(personYearOld.get("firstName")) &&
-                        person.getLastName().contains(personYearOld.get("lastName"))){
+        List<String> allInfosPerson = getList.allInfosPerson(personLeaveInAddress, yearPerson);
 
-                    Map<String, String> medicalRecord = getList.getMedicalRecord(personYearOld.get("firstName"),
-                            personYearOld.get("lastName"));
-                    personAndFirestationNumber.put("numberFirestation", numberFirestationByAddress);
-                    personAndFirestationNumber.put("lastName", person.getLastName());
-                    personAndFirestationNumber.put("firstName", person.getFirstName());
-                    personAndFirestationNumber.put("age", personYearOld.get("year"));
-                    personAndFirestationNumber.put("medications", medicalRecord.get("medications"));
-                    personAndFirestationNumber.put("allergies", medicalRecord.get("allergies"));
-                    personAndFirestationNumber.put("phone", person.getPhone());
+        // Formate en Json mais pas sûr de devoir l'utiliser
+//        JsonToObject jsonToObject = new JsonToObject();
+//        String formatToJson = jsonToObject.writeListToJson(allInfosPerson);
+        //return Collections.singletonList(formatToJson);
+        return allInfosPerson;
+    }
 
-                    personAndFirestationNumberByAddress.add("Firestation:" + personAndFirestationNumber.get("numberFirestation") +
-                            ", LastName:" + personAndFirestationNumber.get("lastName") +
-                            ", FirstName:" + personAndFirestationNumber.get("firstName") +
-                            ", Age:" + personAndFirestationNumber.get("age") +
-                            ", Medications:" + personAndFirestationNumber.get("medications") +
-                            ", Allergies:" + personAndFirestationNumber.get("allergies") +
-                            ", Phone:" + personAndFirestationNumber.get("phone"));
-                }
-            }
+    public List<String> getHomeCoverByFirestation(List<String> stationsNumbers){
+
+        List<String> addressFirestations = new ArrayList<>();
+        List<String> groupPersonByAddress = new ArrayList<>();
+
+        for (String number : stationsNumbers){
+            List<String> addressFirestationByNumber = getList.getAddressFirestationByNumber(number);
+            addressFirestations.addAll(addressFirestationByNumber);
         }
 
-        return personAndFirestationNumberByAddress;
+        List<Person> personByAddress = getList.getPersonByAddressStation(addressFirestations);
+        List<Map<String, String>> listAgesPersons = getList.getYear(personByAddress);
+
+        List<String> allInfosPerson = getList.allInfosPerson(personByAddress,listAgesPersons);
+
+        System.out.println(allInfosPerson);
+
+        return null;
     }
 }

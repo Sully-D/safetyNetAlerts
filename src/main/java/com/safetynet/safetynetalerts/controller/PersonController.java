@@ -66,8 +66,8 @@ public class PersonController {
     }
 
     @GetMapping("/flood/stations")
-    public Person getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
-        return null;
+    public List<String> getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
+        return uriService.getHomeCoverByFirestation(stations);
     }
 
 //    @GetMapping("/personInfo")

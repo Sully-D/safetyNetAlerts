@@ -16,8 +16,8 @@ import java.util.*;
 @Service
 public class GetList {
 
-    private JsonToObject jsonToObject = new JsonToObject();
-    private EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
+    private static JsonToObject jsonToObject = new JsonToObject();
+    private static EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
 
     public List<String> getAddressFirestationByNumber(String stationNumber) {
 
@@ -70,7 +70,7 @@ public class GetList {
                     entry.put("lastName", person.getLastName());
                     entry.put("address", person.getAddress());
                     entry.put("phone", person.getPhone());
-                    entry.put("year", String.valueOf(years) + " years old");
+                    entry.put("year", String.valueOf(years));
 
                     population.add(entry);
                 }
@@ -96,7 +96,7 @@ public class GetList {
         return persons;
     }
 
-    public String getNumberFirestationByAddress (String address){
+    public static String getNumberFirestationByAddress(String address){
         List<Firestation> firestationList = readJsonData.getFirestationList();
 
         for (Firestation firestation : firestationList) {
@@ -107,7 +107,45 @@ public class GetList {
         return null;
     }
 
-    public Map<String, String> getMedicalRecord (String firstName, String lastName){
+    public List<String> allInfosPerson (List <Person>  personByAddress, List<Map<String, String>> yearPerson){
+
+        Map<String, String> personAndFirestationNumber = new HashMap<>();
+        List<String>  personAndFirestationNumberByAddress = new ArrayList<>();
+
+        for (Person person : personByAddress){
+            for (Map<String, String> personYearOld : yearPerson){
+                if (person.getFirstName().contains(personYearOld.get("firstName")) &&
+                        person.getLastName().contains(personYearOld.get("lastName"))){
+
+                    Map<String, String> medicalRecord = GetList.getMedicalRecord(personYearOld.get("firstName"),
+                            personYearOld.get("lastName"));
+                    String numberFirestationByAddress = GetList.getNumberFirestationByAddress(person.getAddress());
+                    personAndFirestationNumber.put("numberFirestation", numberFirestationByAddress);
+                    personAndFirestationNumber.put("address", person.getAddress());
+                    personAndFirestationNumber.put("lastName", person.getLastName());
+                    personAndFirestationNumber.put("firstName", person.getFirstName());
+                    personAndFirestationNumber.put("age", personYearOld.get("year"));
+                    personAndFirestationNumber.put("medications", medicalRecord.get("medications"));
+                    personAndFirestationNumber.put("allergies", medicalRecord.get("allergies"));
+                    personAndFirestationNumber.put("phone", person.getPhone());
+
+                    personAndFirestationNumberByAddress.add(
+                        "firestation:" + personAndFirestationNumber.get("numberFirestation") +
+                        ", address:" + personAndFirestationNumber.get("address") +
+                        ", lastName:" + personAndFirestationNumber.get("lastName") +
+                        ", firstName:" + personAndFirestationNumber.get("firstName") +
+                        ", age:" + personAndFirestationNumber.get("age") +
+                        ", medications:" + personAndFirestationNumber.get("medications") +
+                        ", allergies:" + personAndFirestationNumber.get("allergies") +
+                        ", phone:" + personAndFirestationNumber.get("phone")
+                    );
+                }
+            }
+        }
+        return personAndFirestationNumberByAddress;
+    }
+
+    public static Map<String, String> getMedicalRecord(String firstName, String lastName){
         List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
         Map<String, String> infoMedicalRecord = new HashMap<>();
 
