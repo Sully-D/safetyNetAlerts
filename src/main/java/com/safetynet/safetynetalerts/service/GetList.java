@@ -187,4 +187,18 @@ public class GetList {
 
         return addressFirestations;
     }
+
+    public List<String> getEmailByCity (String city){
+
+        List<Person> persons = readJsonData.getPersonList();
+        List<String> emails = new ArrayList<>();
+
+        for (Person person : persons){
+            if (person.getCity().equals(city)){
+                emails.add(person.getEmail());
+            }
+        }
+
+        return emails;
+    }
 }

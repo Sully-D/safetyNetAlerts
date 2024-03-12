@@ -77,8 +77,8 @@ public class PersonController {
         return uriService.getpersonsInfos(firstname, lastname);
     }
 
-//    @GetMapping("/communityEmail")
-//    public Person getAllEmail(@RequestParam(name = "city") String city) {
-//
-//    }
+    @GetMapping("/communityEmail")
+    public String getAllEmail(@RequestParam(name = "city") String city) {
+        return uriService.getAllEmailByCity(city);
+    }
 }

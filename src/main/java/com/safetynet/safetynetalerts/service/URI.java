@@ -157,4 +157,15 @@ public class URI {
 
         return personinfosToJson;
     }
+
+    public String getAllEmailByCity(String city){
+
+        List<String> emails = getList.getEmailByCity(city);
+
+        JsonToObject jsonToObject = new JsonToObject();
+        String emailsByCity = jsonToObject.writeListToJson(emails);
+
+        return emailsByCity;
+    }
+
 }
