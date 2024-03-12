@@ -6,22 +6,39 @@ import com.safetynet.safetynetalerts.repository.JsonToObject;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+/**
+ * Service class that offers functionalities to query information related to fire stations and the people they cover.
+ * It provides methods to retrieve lists of people by fire station, children at an address, phone numbers by fire station,
+ * detailed person and fire station information by address, and more.
+ */
 @Service
 public class URI {
 
     GetList getList = new GetList();
 
-    public List<String> getPersonCoverByFirestation(String stationNumber) {
+    /**
+     * Retrieves a list containing the number of adults and minors covered by a specific fire station, along with
+     * a detailed list of all people covered by the fire station.
+     *
+     * @param stationNumber The station number to query for.
+     * @return A List of Strings with the first element being a summary count of adults and minors, and the second
+     * element being detailed age information of all individuals covered.
+     */
+    public List<String> getPersonsCoverByFirestation(String stationNumber) {
+        int major = 0; // Count of adults
+        int minor = 0; // Count of minors
 
-        int major = 0;
-        int minor = 0;
+        // Retrieves addresses associated with the given fire station number
+        List<String> listFirestationsAddress = getList.getAddressFirestationByNumber(stationNumber);
+        // Retrieves persons living at the obtained addresses
+        List<Person> listPersonsCoverByFirestation = getList.getPersonByAddressStation(listFirestationsAddress);
+        // Calculates ages of persons covered by the fire station
+        List<Map<String, String>> listPersonsAges = getList.getAge(listPersonsCoverByFirestation);
 
-        List<String> addressStation = getList.getAddressFirestationByNumber(stationNumber);
-        List<Person> personCoverByFirestation = getList.getPersonByAddressStation(addressStation);
-        List<Map<String, String>> listAdultAndChild = getList.getAge(personCoverByFirestation);
-
-        for (Map<String, String> person : listAdultAndChild){
+        // Categorizing as major or minor based on age
+        for (Map<String, String> person : listPersonsAges){
             int year = Integer.parseInt(person.get("year"));
             if (year > 18){
                 major++;
@@ -30,142 +47,161 @@ public class URI {
             }
         }
 
-        List<String> listPersonCoverByFirestation = new ArrayList<>();
-        String[] nbAdultAndMinor = {"nbAdult="+major, "nbMinor="+minor};
-        listPersonCoverByFirestation.add(Arrays.toString(nbAdultAndMinor));
-        listPersonCoverByFirestation.add(listAdultAndChild.toString());
+        // Preparing the output list
+        List<String> listPersonsCoverByFirestationWithAges = new ArrayList<>();
+        String[] nbAdultAndMinor = {"nbAdult=" + major, "nbMinor=" + minor};
+        listPersonsCoverByFirestationWithAges.add(Arrays.toString(nbAdultAndMinor));
+        listPersonsCoverByFirestationWithAges.add(listPersonsAges.toString());
 
-        return listPersonCoverByFirestation;
+        return listPersonsCoverByFirestationWithAges;
     }
 
-    public List<String> getChildAtAddress(String address){
+    /**
+     * Retrieves a list of children living at a specified address. If no children are found, returns null.
+     * Each child's last name, first name, and type ("Child") are included in the list.
+     *
+     * @param address The address to search for children at.
+     * @return A List of Strings detailing each child found at the address or null if no children are found.
+     */
+    public List<String> getChildrenAtAddress(String address) {
+        List<String> listPersonsAtAddress = new ArrayList<>();
+        // Retrieve all persons living at the specified address
+        List<Person> listPersonsByAddress = getList.getPersonByAddress(address);
+        // Calculate ages for persons at the address
+        List<Map<String, String>> listPersonsWithAges = getList.getAge(listPersonsByAddress);
 
-        List<String> childAtAddress = new ArrayList<>();
-        List<String> adultAtAddress = new ArrayList<>();
-        List<String> personAtAddress = new ArrayList<>();
-        Map<String, String> child = new HashMap<>();
-        Map<String, String> adult = new HashMap<>();
+        // Separating children from adults
+        for (Map<String, String> person : listPersonsWithAges) {
+            Map<String, String> personDetails = new HashMap<>();
+            personDetails.put("lastName", person.get("lastName"));
+            personDetails.put("firstName", person.get("firstName"));
 
-        List<Person> listPersonAtAddress = getList.getPersonByAddress(address);
-        List<Map <String, String>> listAdultAndChild = getList.getAge(listPersonAtAddress);
-
-        for (Map <String, String> person : listAdultAndChild){
             int year = Integer.parseInt(person.get("year"));
-            if (year <= 18){
-                child.put("lastName", person.get("lastName"));
-                child.put("firstName", person.get("firstName"));
-                child.put("Child", person.get("Child"));
-                childAtAddress.add(child.toString());
+            if (year <= 18) {
+                personDetails.put("type", "Child");
             } else {
-                adult.put("lastName", person.get("lastName"));
-                adult.put("firstName", person.get("firstName"));
-                adult.put("Adult", person.get("Adult"));
-                adultAtAddress.add(adult.toString());
+                personDetails.put("type", "Adult");
             }
+            listPersonsAtAddress.add(personDetails.toString());
         }
 
-        if (childAtAddress.isEmpty()) {
-            return personAtAddress;
-        }
-        personAtAddress.add(childAtAddress.toString());
-        personAtAddress.add(adultAtAddress.toString());
-
-        return personAtAddress;
+        // Check if there are children in the list to return it; otherwise, return null
+        return listPersonsAtAddress.stream().anyMatch(person -> person.contains("Child")) ? listPersonsAtAddress : null;
     }
 
-    public List<String> phoneNumberByFirestation(String firestationNumber){
+    /**
+     * Retrieves a list of phone numbers for residents covered by a specified fire station.
+     *
+     * @param firestationNumber The fire station number to query for.
+     * @return A list of unique phone numbers of residents covered by the specified fire station.
+     */
+    public List<String> getPhonesNumbersByFirestation(String firestationNumber){
+        // Retrieves addresses associated with the given fire station number
+        List<String> listFirestationsAddress = getList.getAddressFirestationByNumber(firestationNumber);
+        // Retrieves persons living at the obtained addresses
+        List<Person> listPersonsCoverByFirestation = getList.getPersonByAddressStation(listFirestationsAddress);
 
-        List<String> addressStation = getList.getAddressFirestationByNumber(firestationNumber);
-        List<Person> personCoverByFirestation = getList.getPersonByAddressStation(addressStation);
-        List<String> tempListPhone = new ArrayList<>();
-        List<String> listPhone = new ArrayList<>();
-
-        for (Person person : personCoverByFirestation) {
-            tempListPhone.add(person.getPhone());
+        List<String> listPhonesTemp = new ArrayList<>();
+        // Collecting phone numbers
+        for (Person person : listPersonsCoverByFirestation) {
+            listPhonesTemp.add(person.getPhone());
         }
 
-        for (String phone : tempListPhone) {
-            if (!listPhone.contains(phone)){
-                listPhone.add(phone);
-            }
-        }
+        // Removing duplicate phone numbers
+        List<String> listPhones = new ArrayList<>(new HashSet<>(listPhonesTemp));
 
-        return listPhone;
+        return listPhones;
     }
 
-    public List<AllInfoPerson> getPersonAndFirestationNumberByAddress(String address){
+    /**
+     * Retrieves detailed information about persons and the fire station number covering their address.
+     *
+     * @param address The address to query for persons and their fire station number.
+     * @return A list of {@link AllInfoPerson} containing detailed information about each person at the address and their associated fire station number.
+     */
+    public List<AllInfoPerson> getPersonsAndFirestationNumberByAddress(String address){
+        // Retrieve all persons living at the specified address
+        List<Person> listPersonsByAddress = getList.getPersonByAddress(address);
+        // Calculate ages for persons at the address
+        List<Map<String, String>> listPersonsWithAges = getList.getAge(listPersonsByAddress);
+        // Combining personal info with age information
+        List<AllInfoPerson> listAllInfoPersons = getList.allInfosPerson(listPersonsByAddress, listPersonsWithAges);
 
-        List<Person> personLeaveInAddress = getList.getPersonByAddress(address);
-        List<Map<String, String>> yearPerson = getList.getAge(personLeaveInAddress);
-
-        List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personLeaveInAddress, yearPerson);
-
-        return allInfosPerson;
+        return listAllInfoPersons;
     }
 
-    public List<AllInfoPerson> getHomeCoverByFirestation(List<String> stationsNumbers){
+    /**
+     * Retrieves detailed information about persons covered by a list of fire station numbers, sorted by their address.
+     *
+     * @param stationsNumbers A list of fire station numbers to query for.
+     * @return A sorted list of {@link AllInfoPerson} by address for the specified fire station numbers.
+     */
+    public List<AllInfoPerson> getAddressCoverByFirestation(List<String> stationsNumbers){
+        // Retrieve addresses covered by the specified list of fire station numbers
+        List<String> listFirestationAddress = getList.allFirestationsAddress(stationsNumbers);
+        // Retrieve persons living at the obtained addresses
+        List<Person> listPersonsByAddressStation = getList.getPersonByAddressStation(listFirestationAddress);
+        // Calculate ages for persons covered by the fire stations
+        List<Map<String, String>> listAgesPersons = getList.getAge(listPersonsByAddressStation);
+        // Combining personal info with age and address information
+        List<AllInfoPerson> listAllInfoPersons = getList.allInfosPerson(listPersonsByAddressStation, listAgesPersons);
+        // Sorting the combined information by address
+        List<AllInfoPerson> listAllInfoPersonsSortByAddress = getList.sortByAddress(listAllInfoPersons, listFirestationAddress);
 
-//        List<String> addressFirestations = new ArrayList<>();
-//        List<AllInfoPerson> groupPersonByAddress = new ArrayList<>();
-//
-//        for (String number : stationsNumbers){
-//            List<String> addressFirestationByNumber = getList.getAddressFirestationByNumber(number);
-//            addressFirestations.addAll(addressFirestationByNumber);
-//        }
-        List<String> addressFirestations = getList.allFirestationsAddress(stationsNumbers);
-
-        List<Person> personByAddress = getList.getPersonByAddressStation(addressFirestations);
-        List<Map<String, String>> listAgesPersons = getList.getAge(personByAddress);
-
-        List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personByAddress,listAgesPersons);
-
-        List<AllInfoPerson> sortByAddress =  getList.sortByAddress(allInfosPerson, addressFirestations);
-
-        return sortByAddress;
+        return listAllInfoPersonsSortByAddress;
     }
 
-    public String getpersonsInfos(String firstName, String lastName){
+    /**
+     * Retrieves formatted information about a person identified by first and last name, across all addresses.
+     *
+     * @param firstName The first name of the person to query for.
+     * @param lastName The last name of the person to query for.
+     * @return A string representing a JSON containing detailed information about the person, including personal details and medical information.
+     */
+    public String getPersonsInfo(String firstName, String lastName){
+        // Retrieve all fire station numbers and their associated addresses
+        List<String> listFirestationsNumbers = getList.getFirestationNumber();
+        List<String> listFirestationsAddress = getList.allFirestationsAddress(listFirestationsNumbers);
+        // Retrieve persons living at the obtained addresses
+        List<Person> listPersonsByAddress = getList.getPersonByAddressStation(listFirestationsAddress);
+        // Calculate ages for the retrieved persons
+        List<Map<String, String>> listAgesPersons = getList.getAge(listPersonsByAddress);
+        // Combining personal info with age information
+        List<AllInfoPerson> listAllInfoPersons = getList.allInfosPerson(listPersonsByAddress, listAgesPersons);
 
-        List<String> stationsNumbers = getList.getFirestationNumber();
-        List<String> addressFirestations = getList.allFirestationsAddress(stationsNumbers);
-        List<Person> personByAddress = getList.getPersonByAddressStation(addressFirestations);
-        List<Map<String, String>> listAgesPersons = getList.getAge(personByAddress);
-        List<AllInfoPerson> allInfosPerson = getList.allInfosPerson(personByAddress,listAgesPersons);
-        List<AllInfoPerson> personInfos = new ArrayList<>();
-        List<String> formatePersonInfos = new ArrayList<>();
+        // Filtering for the specific person
+        List<AllInfoPerson> listPersonsInfos = listAllInfoPersons.stream()
+                .filter(person -> person.getFirstName().equals(firstName) && person.getLastName().equals(lastName))
+                .collect(Collectors.toList());
 
-        for (AllInfoPerson person : allInfosPerson){
-            if (person.getFirstName().equals(firstName) && person.getLastName().equals(lastName)){
-                personInfos.add(person);
-            }
-        }
+        // Formatting the information of the filtered persons
+        List<String> listFormateInfoPersons = listPersonsInfos.stream()
+                .map(info -> String.format(
+                        "firstName:%s, lastName:%s, address:%s, age:%s, email:%s, medications:%s, allergies%s",
+                        info.getFirstName(), info.getLastName(), info.getAddress(), info.getAge(),
+                        info.getEmail(), info.getMedications(), info.getAllergies()))
+                .collect(Collectors.toList());
 
-        for (AllInfoPerson info : personInfos){
-            formatePersonInfos.add(
-                    "firstName:"+info.getFirstName() +
-                            ", lastName:"+info.getLastName() +
-                            ", address:"+info.getAddress() +
-                            ", age:"+info.getAge() +
-                            ", email:"+info.getEmail() +
-                            ", medications:"+info.getMedications() +
-                            ", allergies"+info.getAllergies()
-            );
-        }
-
+        // Converting the formatted information to JSON
         JsonToObject jsonToObject = new JsonToObject();
-        String personinfosToJson = jsonToObject.writeListToJson(formatePersonInfos);
+        String formateInfosPersonsToJson = jsonToObject.writeListToJson(listFormateInfoPersons);
 
-        return personinfosToJson;
+        return formateInfosPersonsToJson;
     }
 
-    public String getAllEmailByCity(String city){
-
-        List<String> emails = getList.getEmailByCity(city);
-
+    /**
+     * Retrieves all emails of residents within a specified city.
+     *
+     * @param city The city to query for resident emails.
+     * @return A string representing a JSON containing all the emails of residents within the specified city.
+     */
+    public String getAllEmailsByCity(String city){
+        // Retrieve emails for residents in the specified city
+        List<String> listEmails = getList.getEmailByCity(city);
+        // Converting the list of emails to JSON
         JsonToObject jsonToObject = new JsonToObject();
-        String emailsByCity = jsonToObject.writeListToJson(emails);
+        String emailsByCity = jsonToObject.writeListToJson(listEmails);
 
         return emailsByCity;
     }
-
 }

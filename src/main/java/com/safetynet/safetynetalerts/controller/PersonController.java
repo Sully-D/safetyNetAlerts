@@ -48,37 +48,37 @@ public class PersonController {
 
     @GetMapping("/firestation")
     public List<String> getPersonCoverByFirestation(@RequestParam(name = "stationNumber", required = false) String stationNumber) {
-        return uriService.getPersonCoverByFirestation(stationNumber);
+        return uriService.getPersonsCoverByFirestation(stationNumber);
     }
 
     @GetMapping("/childAlert")
     public List<String> getMinorChildAtAddress(@RequestParam(name = "address") String address){
-        return uriService.getChildAtAddress(address);
+        return uriService.getChildrenAtAddress(address);
     }
 
     @GetMapping("/phoneAlert")
     public List<String> getPhoneCoverByFirestation(@RequestParam(name = "firestation") String firestation){
-        return uriService.phoneNumberByFirestation(firestation);
+        return uriService.getPhonesNumbersByFirestation(firestation);
     }
 
     @GetMapping("/fire")
     public List<AllInfoPerson> getPersonAndFirestationNumberByAddress(@RequestParam(name = "address") String address){
-        return uriService.getPersonAndFirestationNumberByAddress(address);
+        return uriService.getPersonsAndFirestationNumberByAddress(address);
     }
 
     @GetMapping("/flood/stations")
     public List<AllInfoPerson> getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
-        return uriService.getHomeCoverByFirestation(stations);
+        return uriService.getAddressCoverByFirestation(stations);
     }
 
     @GetMapping("/personInfo")
     public String getPersonInfo(@RequestParam(name = "firstname") String firstname,
                                              @RequestParam(name = "lastname") String lastname){
-        return uriService.getpersonsInfos(firstname, lastname);
+        return uriService.getPersonsInfo(firstname, lastname);
     }
 
     @GetMapping("/communityEmail")
     public String getAllEmail(@RequestParam(name = "city") String city) {
-        return uriService.getAllEmailByCity(city);
+        return uriService.getAllEmailsByCity(city);
     }
 }
