@@ -55,8 +55,8 @@ public class URI {
 
             // Categorizing as major or minor based on age
             for (Map<String, String> person : listPersonsAges) {
-                int year = Integer.parseInt(person.get("year"));
-                if (year > 18) {
+                int age = Integer.parseInt(person.get("age"));
+                if (age > 18) {
                     major++;
                 } else {
                     minor++;
@@ -104,7 +104,7 @@ public class URI {
                 personDetails.put("lastName", person.get("lastName"));
                 personDetails.put("firstName", person.get("firstName"));
 
-                int age = Integer.parseInt(person.get("year")); // Assuming 'year' represents the age directly, which might be a misunderstanding
+                int age = Integer.parseInt(person.get("age")); // Assuming 'year' represents the age directly, which might be a misunderstanding
                 if (age <= 18) {
                     personDetails.put("type", "Child");
                     logger.debug("Foundling: {} {}", person.get("firstName"), person.get("lastName"));
@@ -209,17 +209,40 @@ public class URI {
      * @return A sorted list of {@link AllInfoPerson} by address for the specified fire station numbers.
      */
     public List<AllInfoPerson> getAddressCoverByFirestation(List<String> stationsNumbers){
+
+        logger.info("Retrieving detailed information for persons covered by fire station numbers: {}", stationsNumbers);
+
         // Retrieve addresses covered by the specified list of fire station numbers
+        logger.debug("Retrieving addresses covered by fire stations: {}", stationsNumbers);
         List<String> listFirestationAddress = getList.allFirestationsAddress(stationsNumbers);
+
+        if (listFirestationAddress.isEmpty()) {
+            logger.warn("No addresses found for fire station numbers: {}", stationsNumbers);
+            return Collections.emptyList(); // Return an empty list to avoid proceeding with no data
+        }
+
         // Retrieve persons living at the obtained addresses
+        logger.debug("Retrieving persons living at the obtained addresses");
         List<Person> listPersonsByAddressStation = getList.getPersonByAddressStation(listFirestationAddress);
+
+        if (listPersonsByAddressStation.isEmpty()) {
+            logger.warn("No persons found living at the addresses covered by the specified fire stations");
+            return Collections.emptyList();
+        }
+
         // Calculate ages for persons covered by the fire stations
+        logger.debug("Calculating ages for persons covered by the fire stations");
         List<Map<String, String>> listAgesPersons = getList.getAge(listPersonsByAddressStation);
+
         // Combining personal info with age and address information
+        logger.debug("Combining personal information with age and address data");
         List<AllInfoPerson> listAllInfoPersons = getList.allInfosPerson(listPersonsByAddressStation, listAgesPersons);
+
         // Sorting the combined information by address
+        logger.debug("Sorting the combined information by address");
         List<AllInfoPerson> listAllInfoPersonsSortByAddress = getList.sortByAddress(listAllInfoPersons, listFirestationAddress);
 
+        logger.info("Successfully retrieved and sorted detailed information for persons covered by fire stations. Total persons: {}", listAllInfoPersonsSortByAddress.size());
         return listAllInfoPersonsSortByAddress;
     }
 
@@ -231,33 +254,51 @@ public class URI {
      * @return A string representing a JSON containing detailed information about the person, including personal details and medical information.
      */
     public String getPersonsInfo(String firstName, String lastName){
+
+        logger.info("Retrieving information for person: {} {}", firstName, lastName);
+
         // Retrieve all fire station numbers and their associated addresses
+        logger.debug("Retrieving all fire station numbers and their associated addresses");
         List<String> listFirestationsNumbers = getList.getFirestationNumber();
         List<String> listFirestationsAddress = getList.allFirestationsAddress(listFirestationsNumbers);
+
         // Retrieve persons living at the obtained addresses
+        logger.debug("Retrieving persons living at the obtained addresses");
         List<Person> listPersonsByAddress = getList.getPersonByAddressStation(listFirestationsAddress);
+
         // Calculate ages for the retrieved persons
+        logger.debug("Calculating ages for the retrieved persons");
         List<Map<String, String>> listAgesPersons = getList.getAge(listPersonsByAddress);
+
         // Combining personal info with age information
+        logger.debug("Combining personal info with age information");
         List<AllInfoPerson> listAllInfoPersons = getList.allInfosPerson(listPersonsByAddress, listAgesPersons);
 
         // Filtering for the specific person
+        logger.debug("Filtering information for the specific person: {} {}", firstName, lastName);
         List<AllInfoPerson> listPersonsInfos = listAllInfoPersons.stream()
                 .filter(person -> person.getFirstName().equals(firstName) && person.getLastName().equals(lastName))
                 .collect(Collectors.toList());
 
+        if (listPersonsInfos.isEmpty()) {
+            logger.warn("No information found for person: {} {}", firstName, lastName);
+            return "{}"; // Returning an empty JSON representation if no information is found
+        }
+
         // Formatting the information of the filtered persons
         List<String> listFormateInfoPersons = listPersonsInfos.stream()
                 .map(info -> String.format(
-                        "firstName:%s, lastName:%s, address:%s, age:%s, email:%s, medications:%s, allergies%s",
+                        "firstName:%s, lastName:%s, address:%s, age:%s, email:%s, medications:%s, allergies:%s",
                         info.getFirstName(), info.getLastName(), info.getAddress(), info.getAge(),
                         info.getEmail(), info.getMedications(), info.getAllergies()))
                 .collect(Collectors.toList());
 
         // Converting the formatted information to JSON
+        logger.debug("Converting the formatted information to JSON");
         JsonToObject jsonToObject = new JsonToObject();
         String formateInfosPersonsToJson = jsonToObject.writeListToJson(listFormateInfoPersons);
 
+        logger.info("Successfully retrieved information for person: {} {}", firstName, lastName);
         return formateInfosPersonsToJson;
     }
 
@@ -268,12 +309,23 @@ public class URI {
      * @return A string representing a JSON containing all the emails of residents within the specified city.
      */
     public String getAllEmailsByCity(String city){
+
+        logger.info("Retrieving all emails for residents in city: {}", city);
+
         // Retrieve emails for residents in the specified city
         List<String> listEmails = getList.getEmailByCity(city);
-        // Converting the list of emails to JSON
-        JsonToObject jsonToObject = new JsonToObject();
-        String emailsByCity = jsonToObject.writeListToJson(listEmails);
 
-        return emailsByCity;
+        if (listEmails.isEmpty()) {
+            logger.warn("No emails found for residents in city: {}", city);
+            return "[]"; // Return an empty JSON array to maintain consistent data format
+        }
+
+        // Converting the list of emails to JSON
+        logger.debug("Converting the list of emails to JSON format");
+        JsonToObject jsonToObject = new JsonToObject();
+        String emailsByCityToJson = jsonToObject.writeListToJson(listEmails);
+
+        logger.info("Successfully retrieved and converted emails for city: {}. Total emails: {}", city, listEmails.size());
+        return emailsByCityToJson;
     }
 }
