@@ -3,6 +3,7 @@ package com.safetynet.safetynetalerts.service;
 import com.safetynet.safetynetalerts.model.AllInfoPerson;
 import com.safetynet.safetynetalerts.model.Person;
 import com.safetynet.safetynetalerts.repository.JsonToObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -16,7 +17,9 @@ import java.util.stream.Collectors;
 @Service
 public class URI {
 
-    GetList getList = new GetList();
+    //GetList getList = new GetList();
+    @Autowired
+    GetList getList;
 
     /**
      * Retrieves a list containing the number of adults and minors covered by a specific fire station, along with
