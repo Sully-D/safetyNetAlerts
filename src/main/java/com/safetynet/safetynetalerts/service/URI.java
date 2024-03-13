@@ -3,6 +3,8 @@ package com.safetynet.safetynetalerts.service;
 import com.safetynet.safetynetalerts.model.AllInfoPerson;
 import com.safetynet.safetynetalerts.model.Person;
 import com.safetynet.safetynetalerts.repository.JsonToObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 @Service
 public class URI {
 
+    private static final Logger logger = LoggerFactory.getLogger(URI.class);
+
     //GetList getList = new GetList();
     @Autowired
     GetList getList;
@@ -30,33 +34,48 @@ public class URI {
      * element being detailed age information of all individuals covered.
      */
     public List<String> getPersonsCoverByFirestation(String stationNumber) {
+
+        logger.info("Start of getPersonsCoverByFirestation for station number {}", stationNumber);
+
         int major = 0; // Count of adults
         int minor = 0; // Count of minors
 
-        // Retrieves addresses associated with the given fire station number
-        List<String> listFirestationsAddress = getList.getAddressFirestationByNumber(stationNumber);
-        // Retrieves persons living at the obtained addresses
-        List<Person> listPersonsCoverByFirestation = getList.getPersonByAddressStation(listFirestationsAddress);
-        // Calculates ages of persons covered by the fire station
-        List<Map<String, String>> listPersonsAges = getList.getAge(listPersonsCoverByFirestation);
+        try {
+            // Retrieves addresses associated with the given fire station number
+            logger.debug("Retrieve addresses associated with station number {}", stationNumber);
+            List<String> listFirestationsAddress = getList.getAddressFirestationByNumber(stationNumber);
 
-        // Categorizing as major or minor based on age
-        for (Map<String, String> person : listPersonsAges){
-            int year = Integer.parseInt(person.get("year"));
-            if (year > 18){
-                major++;
-            } else {
-                minor++;
+            // Retrieves persons living at the obtained addresses
+            logger.debug("Recovery of people living at addresses obtained for station number {}", stationNumber);
+            List<Person> listPersonsCoverByFirestation = getList.getPersonByAddressStation(listFirestationsAddress);
+
+            // Calculates ages of persons covered by the fire station
+            logger.debug("Calculating the ages of people covered by station number {}", stationNumber);
+            List<Map<String, String>> listPersonsAges = getList.getAge(listPersonsCoverByFirestation);
+
+            // Categorizing as major or minor based on age
+            for (Map<String, String> person : listPersonsAges) {
+                int year = Integer.parseInt(person.get("year"));
+                if (year > 18) {
+                    major++;
+                } else {
+                    minor++;
+                }
             }
+
+            // Preparing the output list
+            List<String> listPersonsCoverByFirestationWithAges = new ArrayList<>();
+            String[] nbAdultAndMinor = {"nbAdult=" + major, "nbMinor=" + minor};
+            listPersonsCoverByFirestationWithAges.add(Arrays.toString(nbAdultAndMinor));
+            listPersonsCoverByFirestationWithAges.add(listPersonsAges.toString());
+
+            logger.info("Operation completed for station number {}. Number of adults: {}, Number of minors: {}", stationNumber, major, minor);
+            return listPersonsCoverByFirestationWithAges;
+
+        } catch (Exception e) {
+            logger.error("Error when retrieving persons covered by fire station number " + stationNumber, e);
+            return Collections.emptyList(); // return void list if error
         }
-
-        // Preparing the output list
-        List<String> listPersonsCoverByFirestationWithAges = new ArrayList<>();
-        String[] nbAdultAndMinor = {"nbAdult=" + major, "nbMinor=" + minor};
-        listPersonsCoverByFirestationWithAges.add(Arrays.toString(nbAdultAndMinor));
-        listPersonsCoverByFirestationWithAges.add(listPersonsAges.toString());
-
-        return listPersonsCoverByFirestationWithAges;
     }
 
     /**
@@ -67,29 +86,48 @@ public class URI {
      * @return A List of Strings detailing each child found at the address or null if no children are found.
      */
     public List<String> getChildrenAtAddress(String address) {
+
+        logger.info("Search for children at address: {}", address);
         List<String> listPersonsAtAddress = new ArrayList<>();
-        // Retrieve all persons living at the specified address
-        List<Person> listPersonsByAddress = getList.getPersonByAddress(address);
-        // Calculate ages for persons at the address
-        List<Map<String, String>> listPersonsWithAges = getList.getAge(listPersonsByAddress);
 
-        // Separating children from adults
-        for (Map<String, String> person : listPersonsWithAges) {
-            Map<String, String> personDetails = new HashMap<>();
-            personDetails.put("lastName", person.get("lastName"));
-            personDetails.put("firstName", person.get("firstName"));
+        try {
+            // Retrieve all persons living at the specified address
+            logger.debug("Recover people at address: {}", address);
+            List<Person> listPersonsByAddress = getList.getPersonByAddress(address);
+            // Calculate ages for persons at the address
+            logger.debug("Calculating the ages of people at address: {}", address);
+            List<Map<String, String>> listPersonsWithAges = getList.getAge(listPersonsByAddress);
 
-            int year = Integer.parseInt(person.get("year"));
-            if (year <= 18) {
-                personDetails.put("type", "Child");
-            } else {
-                personDetails.put("type", "Adult");
+            // Separating children from adults
+            for (Map<String, String> person : listPersonsWithAges) {
+                Map<String, String> personDetails = new HashMap<>();
+                personDetails.put("lastName", person.get("lastName"));
+                personDetails.put("firstName", person.get("firstName"));
+
+                int age = Integer.parseInt(person.get("year")); // Assuming 'year' represents the age directly, which might be a misunderstanding
+                if (age <= 18) {
+                    personDetails.put("type", "Child");
+                    logger.debug("Foundling: {} {}", person.get("firstName"), person.get("lastName"));
+                } else {
+                    personDetails.put("type", "Adult");
+                }
+                listPersonsAtAddress.add(personDetails.toString());
             }
-            listPersonsAtAddress.add(personDetails.toString());
-        }
 
-        // Check if there are children in the list to return it; otherwise, return null
-        return listPersonsAtAddress.stream().anyMatch(person -> person.contains("Child")) ? listPersonsAtAddress : null;
+            // Check if there are children in the list
+            boolean hasChildren = listPersonsAtAddress.stream().anyMatch(person -> person.contains("Child"));
+            if (!hasChildren) {
+                logger.info("No children found at address: {}", address);
+                return Collections.emptyList(); // Changed to return an empty list instead of null
+            }
+
+            logger.info("Foundlings at address: {}. Total: {}", address, listPersonsAtAddress.size());
+            return listPersonsAtAddress;
+
+        } catch (Exception e) {
+            logger.error("Error retrieving children from address " + address, e);
+            return Collections.emptyList(); // Retourne une liste vide en cas d'erreur
+        }
     }
 
     /**
