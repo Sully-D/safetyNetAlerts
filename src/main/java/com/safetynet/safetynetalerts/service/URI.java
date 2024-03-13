@@ -137,20 +137,38 @@ public class URI {
      * @return A list of unique phone numbers of residents covered by the specified fire station.
      */
     public List<String> getPhonesNumbersByFirestation(String firestationNumber){
+        logger.info("Starting to retrieve phone numbers for firestation number: {}", firestationNumber);
+
         // Retrieves addresses associated with the given fire station number
+        logger.debug("Retrieving addresses associated with firestation number: {}", firestationNumber);
         List<String> listFirestationsAddress = getList.getAddressFirestationByNumber(firestationNumber);
+
+        if (listFirestationsAddress.isEmpty()) {
+            logger.warn("No addresses found for firestation number: {}", firestationNumber);
+            return Collections.emptyList(); // Return an empty list to avoid null pointer exceptions downstream
+        }
+
         // Retrieves persons living at the obtained addresses
+        logger.debug("Retrieving persons living at the obtained addresses");
         List<Person> listPersonsCoverByFirestation = getList.getPersonByAddressStation(listFirestationsAddress);
+
+        if (listPersonsCoverByFirestation.isEmpty()) {
+            logger.warn("No persons found living at the addresses associated with firestation number: {}", firestationNumber);
+            return Collections.emptyList();
+        }
 
         List<String> listPhonesTemp = new ArrayList<>();
         // Collecting phone numbers
+        logger.debug("Collecting phone numbers for the addresses");
         for (Person person : listPersonsCoverByFirestation) {
             listPhonesTemp.add(person.getPhone());
         }
 
         // Removing duplicate phone numbers
+        logger.debug("Removing duplicate phone numbers from the list");
         List<String> listPhones = new ArrayList<>(new HashSet<>(listPhonesTemp));
 
+        logger.info("Successfully retrieved phone numbers for firestation number: {}. Total unique phone numbers: {}", firestationNumber, listPhones.size());
         return listPhones;
     }
 
