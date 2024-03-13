@@ -2,6 +2,8 @@ package com.safetynet.safetynetalerts.repository;
 
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import com.safetynet.safetynetalerts.model.Firestation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.Optional;
 @Repository
 public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements EncapsulateModelsPrsFstMdrDAO<Firestation> {
 
+    private static final Logger logger = LoggerFactory.getLogger(ImplEncapsulateModelsPrsFstMdrDAOFirestation.class);
+
     /**
      * Adds a new firestation record to the JSON data store.
      *
@@ -22,12 +26,32 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
      */
     @Override
     public Firestation add(Firestation firestation) {
+
+        if (firestation == null) {
+            logger.warn("Attempted to add a null Firestation object to the data store.");
+            return null;
+        }
+
+        logger.info("Adding a new firestation record: Station number {}, Address {}", firestation.getStation(), firestation.getAddress());
+
         JsonToObject jsonToObject = new JsonToObject();
         EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
+        if (readJsonData == null) {
+            logger.error("Failed to read the current JSON data store.");
+            return null;
+        }
+
         List<Firestation> firestationList = readJsonData.getFirestationList();
         firestationList.add(firestation);
         readJsonData.setFirestationList(firestationList);
-        jsonToObject.saveJsonData(readJsonData);
+
+        boolean saveResult = jsonToObject.saveJsonData(readJsonData);
+        if (!saveResult) {
+            logger.error("Failed to save the updated JSON data store after adding firestation: Station number {}, Address {}", firestation.getStation(), firestation.getAddress());
+            return null;
+        }
+
+        logger.info("Successfully added and saved new firestation record: Station number {}, Address {}", firestation.getStation(), firestation.getAddress());
         return firestation;
     }
 
@@ -38,6 +62,14 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
      */
     @Override
     public void update(Firestation firestationUpdate) {
+
+        if (firestationUpdate == null || firestationUpdate.getAddress() == null || firestationUpdate.getStation() == null) {
+            logger.warn("Attempted to update a Firestation with incomplete information.");
+            return;
+        }
+
+        logger.info("Updating firestation record for address: {}", firestationUpdate.getAddress());
+
         JsonToObject jsonToObject = new JsonToObject();
         EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Firestation> firestationList = readJsonData.getFirestationList();
@@ -45,13 +77,17 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
         Optional<Firestation> findFirestation = firestationList.stream()
                 .filter(p -> p.getAddress().equals(firestationUpdate.getAddress()))
                 .findFirst();
+
         findFirestation.ifPresentOrElse(firestation -> {
             firestation.setStation(firestationUpdate.getStation());
-            System.out.println("UPDATE COMPLETE !");
+            logger.info("Update complete for firestation at address: {}", firestationUpdate.getAddress());
             readJsonData.setFirestationList(firestationList);
-            jsonToObject.saveJsonData(readJsonData);
+            boolean saveResult = jsonToObject.saveJsonData(readJsonData);
+            if (!saveResult) {
+                logger.error("Failed to save the updated JSON data store after updating firestation: {}", firestationUpdate.getAddress());
+            }
         }, () -> {
-            System.out.println("FIRESTATION NOT FOUND");
+            logger.warn("Firestation not found for address: {}", firestationUpdate.getAddress());
         });
     }
 
@@ -62,12 +98,29 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
      */
     @Override
     public void delete(Firestation firestationToDelete) {
+
+        if (firestationToDelete == null) {
+            logger.warn("Attempted to delete a null Firestation object.");
+            return;
+        }
+
+        logger.info("Deleting firestation record: Station number {}, Address {}", firestationToDelete.getStation(), firestationToDelete.getAddress());
+
         JsonToObject jsonToObject = new JsonToObject();
         EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Firestation> firestationList = readJsonData.getFirestationList();
 
-        firestationList.removeIf(firestation -> firestation.equals(firestationToDelete));
-        readJsonData.setFirestationList(firestationList);
-        jsonToObject.saveJsonData(readJsonData);
+        boolean removalResult = firestationList.removeIf(firestation -> firestation.equals(firestationToDelete));
+
+        if (removalResult) {
+            logger.info("Successfully deleted firestation record: Station number {}, Address {}", firestationToDelete.getStation(), firestationToDelete.getAddress());
+            readJsonData.setFirestationList(firestationList);
+            boolean saveResult = jsonToObject.saveJsonData(readJsonData);
+            if (!saveResult) {
+                logger.error("Failed to save the updated JSON data store after deleting the firestation: {}", firestationToDelete.getAddress());
+            }
+        } else {
+            logger.warn("Firestation record to delete was not found: Station number {}, Address {}", firestationToDelete.getStation(), firestationToDelete.getAddress());
+        }
     }
 }

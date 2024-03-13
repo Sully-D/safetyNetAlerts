@@ -2,6 +2,8 @@ package com.safetynet.safetynetalerts.repository;
 
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import com.safetynet.safetynetalerts.model.Medicalrecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.Optional;
 @Repository
 public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements EncapsulateModelsPrsFstMdrDAO<Medicalrecord> {
 
+    private static final Logger logger = LoggerFactory.getLogger(ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord.class);
+
     /**
      * Adds a new {@link Medicalrecord} to the JSON data store.
      *
@@ -23,12 +27,36 @@ public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements Encapsula
      */
     @Override
     public Medicalrecord add(Medicalrecord medicalrecord) {
+
+        if (medicalrecord == null) {
+            logger.warn("Attempted to add a null Medicalrecord object.");
+            return null;
+        }
+
+        logger.info("Adding a new Medicalrecord to the data store: {} {}", medicalrecord.getFirstName(), medicalrecord.getLastName());
+
         JsonToObject jsonToObject = new JsonToObject();
         EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
+
+        // Check for existing records before adding
+        boolean exists = medicalrecordList.stream()
+                .anyMatch(m -> m.getFirstName().equals(medicalrecord.getFirstName()) && m.getLastName().equals(medicalrecord.getLastName()));
+        if (exists) {
+            logger.warn("A Medicalrecord already exists for: {} {}. Aborting add.", medicalrecord.getFirstName(), medicalrecord.getLastName());
+            return null;
+        }
+
         medicalrecordList.add(medicalrecord);
         readJsonData.setMedicalrecordList(medicalrecordList);
-        jsonToObject.saveJsonData(readJsonData);
+        boolean saveResult = jsonToObject.saveJsonData(readJsonData);
+
+        if (!saveResult) {
+            logger.error("Failed to save the updated JSON data store after adding new Medicalrecord for: {} {}", medicalrecord.getFirstName(), medicalrecord.getLastName());
+            return null;
+        }
+
+        logger.info("Successfully added and saved new Medicalrecord for: {} {}", medicalrecord.getFirstName(), medicalrecord.getLastName());
         return medicalrecord;
     }
 
@@ -39,6 +67,13 @@ public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements Encapsula
      */
     @Override
     public void update(Medicalrecord medicalrecordUpdate) {
+        if (medicalrecordUpdate == null) {
+            logger.warn("Attempted to update a Medicalrecord with a null object.");
+            return;
+        }
+
+        logger.info("Updating Medicalrecord for: {} {}", medicalrecordUpdate.getFirstName(), medicalrecordUpdate.getLastName());
+
         JsonToObject jsonToObject = new JsonToObject();
         EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
@@ -46,14 +81,18 @@ public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements Encapsula
         Optional<Medicalrecord> findPerson = medicalrecordList.stream()
                 .filter(p -> p.getFirstName().equals(medicalrecordUpdate.getFirstName()) && p.getLastName().equals(medicalrecordUpdate.getLastName()))
                 .findFirst();
+
         findPerson.ifPresentOrElse(person -> {
             person.setMedications(medicalrecordUpdate.getMedications());
             person.setAllergies(medicalrecordUpdate.getAllergies());
-            System.out.println("UPDATE COMPLETE !");
+            logger.info("Update complete for Medicalrecord of: {} {}", medicalrecordUpdate.getFirstName(), medicalrecordUpdate.getLastName());
             readJsonData.setMedicalrecordList(medicalrecordList);
-            jsonToObject.saveJsonData(readJsonData);
+            boolean saveResult = jsonToObject.saveJsonData(readJsonData);
+            if (!saveResult) {
+                logger.error("Failed to save the updated JSON data store after updating Medicalrecord for: {} {}", medicalrecordUpdate.getFirstName(), medicalrecordUpdate.getLastName());
+            }
         }, () -> {
-            System.out.println("PERSON NOT FOUND");
+            logger.warn("Person not found for updating Medicalrecord: {} {}", medicalrecordUpdate.getFirstName(), medicalrecordUpdate.getLastName());
         });
     }
 
@@ -64,12 +103,29 @@ public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements Encapsula
      */
     @Override
     public void delete(Medicalrecord medicalrecordToDelete) {
+
+        if (medicalrecordToDelete == null) {
+            logger.warn("Attempted to delete a null Medicalrecord object.");
+            return;
+        }
+
+        logger.info("Attempting to delete Medicalrecord for: {} {}", medicalrecordToDelete.getFirstName(), medicalrecordToDelete.getLastName());
+
         JsonToObject jsonToObject = new JsonToObject();
         EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
 
-        medicalrecordList.removeIf(person -> person.equals(medicalrecordToDelete));
-        readJsonData.setMedicalrecordList(medicalrecordList);
-        jsonToObject.saveJsonData(readJsonData);
+        boolean removalSuccess = medicalrecordList.removeIf(person -> person.equals(medicalrecordToDelete));
+
+        if (removalSuccess) {
+            logger.info("Successfully deleted Medicalrecord for: {} {}", medicalrecordToDelete.getFirstName(), medicalrecordToDelete.getLastName());
+            readJsonData.setMedicalrecordList(medicalrecordList);
+            boolean saveResult = jsonToObject.saveJsonData(readJsonData);
+            if (!saveResult) {
+                logger.error("Failed to save the updated JSON data store after deleting Medicalrecord for: {} {}", medicalrecordToDelete.getFirstName(), medicalrecordToDelete.getLastName());
+            }
+        } else {
+            logger.warn("Medicalrecord to delete was not found for: {} {}", medicalrecordToDelete.getFirstName(), medicalrecordToDelete.getLastName());
+        }
     }
 }
