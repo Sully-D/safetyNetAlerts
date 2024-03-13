@@ -179,13 +179,26 @@ public class URI {
      * @return A list of {@link AllInfoPerson} containing detailed information about each person at the address and their associated fire station number.
      */
     public List<AllInfoPerson> getPersonsAndFirestationNumberByAddress(String address){
+        logger.info("Retrieving detailed information for residents and their fire station number at address: {}", address);
+
         // Retrieve all persons living at the specified address
+        logger.debug("Retrieving all persons living at the specified address: {}", address);
         List<Person> listPersonsByAddress = getList.getPersonByAddress(address);
+
+        if (listPersonsByAddress.isEmpty()) {
+            logger.warn("No persons found at the specified address: {}", address);
+            return Collections.emptyList(); // Return an empty list to signify no data was found
+        }
+
         // Calculate ages for persons at the address
+        logger.debug("Calculating ages for persons at the address: {}", address);
         List<Map<String, String>> listPersonsWithAges = getList.getAge(listPersonsByAddress);
+
         // Combining personal info with age information
+        logger.debug("Combining personal information with age data");
         List<AllInfoPerson> listAllInfoPersons = getList.allInfosPerson(listPersonsByAddress, listPersonsWithAges);
 
+        logger.info("Successfully retrieved detailed information for {} residents at address: {}", listAllInfoPersons.size(), address);
         return listAllInfoPersons;
     }
 
