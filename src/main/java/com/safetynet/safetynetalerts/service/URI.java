@@ -43,7 +43,7 @@ public class URI {
         try {
             // Retrieves addresses associated with the given fire station number
             logger.debug("Retrieve addresses associated with station number {}", stationNumber);
-            List<String> listFirestationsAddress = getList.getAddressFirestationByNumber(stationNumber);
+            List<String> listFirestationsAddress = GetList.getAddressFirestationByNumber(stationNumber);
 
             // Retrieves persons living at the obtained addresses
             logger.debug("Recovery of people living at addresses obtained for station number {}", stationNumber);
@@ -141,7 +141,7 @@ public class URI {
 
         // Retrieves addresses associated with the given fire station number
         logger.debug("Retrieving addresses associated with firestation number: {}", firestationNumber);
-        List<String> listFirestationsAddress = getList.getAddressFirestationByNumber(firestationNumber);
+        List<String> listFirestationsAddress = GetList.getAddressFirestationByNumber(firestationNumber);
 
         if (listFirestationsAddress.isEmpty()) {
             logger.warn("No addresses found for firestation number: {}", firestationNumber);
@@ -276,17 +276,17 @@ public class URI {
 
         // Filtering for the specific person
         logger.debug("Filtering information for the specific person: {} {}", firstName, lastName);
-        List<AllInfoPerson> listPersonsInfos = listAllInfoPersons.stream()
+        List<AllInfoPerson> listPersonsInfo = listAllInfoPersons.stream()
                 .filter(person -> person.getFirstName().equals(firstName) && person.getLastName().equals(lastName))
-                .collect(Collectors.toList());
+                .toList();
 
-        if (listPersonsInfos.isEmpty()) {
+        if (listPersonsInfo.isEmpty()) {
             logger.warn("No information found for person: {} {}", firstName, lastName);
             return "{}"; // Returning an empty JSON representation if no information is found
         }
 
         // Formatting the information of the filtered persons
-        List<String> listFormateInfoPersons = listPersonsInfos.stream()
+        List<String> listFormatInfoPersons = listPersonsInfo.stream()
                 .map(info -> String.format(
                         "firstName:%s, lastName:%s, address:%s, age:%s, email:%s, medications:%s, allergies:%s",
                         info.getFirstName(), info.getLastName(), info.getAddress(), info.getAge(),
@@ -296,10 +296,10 @@ public class URI {
         // Converting the formatted information to JSON
         logger.debug("Converting the formatted information to JSON");
         JsonToObject jsonToObject = new JsonToObject();
-        String formateInfosPersonsToJson = jsonToObject.writeListToJson(listFormateInfoPersons);
+        String formatInfoPersonsToJson = jsonToObject.writeListToJson(listFormatInfoPersons);
 
         logger.info("Successfully retrieved information for person: {} {}", firstName, lastName);
-        return formateInfosPersonsToJson;
+        return formatInfoPersonsToJson;
     }
 
     /**

@@ -3,7 +3,12 @@ package com.safetynet.safetynetalerts.controller;
 import com.safetynet.safetynetalerts.model.Medicalrecord;
 import com.safetynet.safetynetalerts.repository.ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+import java.util.Objects;
 
 /**
  * Controller class responsible for handling HTTP requests related to medical record operations.
@@ -19,10 +24,22 @@ public class MedicalrecordController {
      * Adds a new medical record to the system.
      *
      * @param medicalrecord The medical record to be added, encapsulated within the request body.
+     * @return A ResponseEntity with the location of the added medicalrecord or no content if the medicalrecord object is null.
      */
     @PostMapping("/medicalRecord")
-    public void add(@RequestBody Medicalrecord medicalrecord) {
+    public ResponseEntity<Object> add(@RequestBody Medicalrecord medicalrecord) {
         medicalrecordService.add(medicalrecord);
+        // Check if the medicalrecord object is null after attempt to add
+        if (Objects.isNull(medicalrecord)) {
+            return ResponseEntity.noContent().build();
+        }
+        // Creating URI for the newly added medicalrecord
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{firstName}")
+                .buildAndExpand(medicalrecord.getFirstName())
+                .toUri();
+        return ResponseEntity.created(location).build();
     }
 
     /**
@@ -31,10 +48,17 @@ public class MedicalrecordController {
      * including the information to be updated.
      *
      * @param medicalrecord The medical record containing updated information.
+     * @return A ResponseEntity with code 200 for updated medicalrecord or no content if the medicalrecord object is null.
      */
     @PatchMapping("/medicalRecord")
-    public void update(@RequestBody Medicalrecord medicalrecord) {
+    public ResponseEntity<Object> update(@RequestBody Medicalrecord medicalrecord) {
         medicalrecordService.update(medicalrecord);
+        // Check if the medicalrecord object is null after attempt to update
+        if (Objects.isNull(medicalrecord)) {
+            return ResponseEntity.noContent().build();
+        }
+        // Code 200 for the updated medicalrecord
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -43,9 +67,16 @@ public class MedicalrecordController {
      * the record to be removed, typically using a unique identifier contained within the object.
      *
      * @param medicalrecord The medical record to be deleted.
+     * @return A ResponseEntity with code 200 for deleted medicalrecord or no content if the medicalrecord object is null.
      */
     @DeleteMapping("/medicalRecord")
-    public void delete(@RequestBody Medicalrecord medicalrecord) {
+    public ResponseEntity<Object> delete(@RequestBody Medicalrecord medicalrecord) {
         medicalrecordService.delete(medicalrecord);
+        // Check if the medicalrecord object is null after attempt to update
+        if (Objects.isNull(medicalrecord)) {
+            return ResponseEntity.noContent().build();
+        }
+        // Code 200 for the updated medicalrecord
+        return ResponseEntity.ok().build();
     }
 }

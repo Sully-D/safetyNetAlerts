@@ -52,20 +52,34 @@ public class PersonController {
      * Updates information for an existing person.
      *
      * @param person The person with updated information.
+     * @return A ResponseEntity 200 for updated person or no content if the person object is null.
      */
     @PatchMapping("/person")
-    public void updatePerson(@RequestBody Person person) {
+    public ResponseEntity<Object> updatePerson(@RequestBody Person person) {
         personService.update(person);
+        // Check if the person object is null after attempt to update
+        if (Objects.isNull(person)) {
+            return ResponseEntity.noContent().build();
+        }
+        // Code 200 update person
+        return ResponseEntity.ok().build();
     }
 
     /**
      * Deletes a person from the system.
      *
      * @param person The person to be deleted.
+     * @return A ResponseEntity 200 for delete person or no content if the person object is null.
      */
     @DeleteMapping("/person")
-    public void deletePerson(@RequestBody Person person) {
+    public ResponseEntity<Object> deletePerson(@RequestBody Person person) {
         personService.delete(person);
+        // Check if the person object is null after attempt to delete
+        if (Objects.isNull(person)) {
+            return ResponseEntity.noContent().build();
+        }
+        // Code 200 for delete person
+        return ResponseEntity.ok().build();
     }
 
     /**
