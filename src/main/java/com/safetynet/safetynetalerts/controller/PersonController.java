@@ -1,6 +1,5 @@
 package com.safetynet.safetynetalerts.controller;
 
-import com.safetynet.safetynetalerts.model.AllInfoPerson;
 import com.safetynet.safetynetalerts.model.Person;
 import com.safetynet.safetynetalerts.repository.ImplEncapsulateModelsPrsFstMdrDAOPerson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,7 +121,7 @@ public class PersonController {
      * @return A list of AllInfoPerson objects with detailed information.
      */
     @GetMapping("/fire")
-    public List<AllInfoPerson> getPersonAndFirestationNumberByAddress(@RequestParam(name = "address") String address){
+    public List<String> getPersonAndFirestationNumberByAddress(@RequestParam(name = "address") String address){
         return uriService.getPersonsAndFirestationNumberByAddress(address);
     }
 
@@ -133,7 +132,7 @@ public class PersonController {
      * @return A list of AllInfoPerson objects with detailed information about the homes covered.
      */
     @GetMapping("/flood/stations")
-    public List<AllInfoPerson> getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
+    public List<String> getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
         return uriService.getAddressCoverByFirestation(stations);
     }
 
@@ -141,12 +140,12 @@ public class PersonController {
      * Retrieves detailed information about a person given their first and last name.
      *
      * @param firstname The first name of the person.
-     * @param lastname The last name of the person.
+     * @param lastname  The last name of the person.
      * @return A string containing JSON-formatted detailed information about the person.
      */
     @GetMapping("/personInfo")
-    public String getPersonInfo(@RequestParam(name = "firstname") String firstname,
-                                @RequestParam(name = "lastname") String lastname){
+    public List<String> getPersonInfo(@RequestParam(name = "firstname") String firstname,
+                                      @RequestParam(name = "lastname") String lastname){
         return uriService.getPersonsInfo(firstname, lastname);
     }
 
@@ -157,7 +156,7 @@ public class PersonController {
      * @return A string containing JSON-formatted list of emails.
      */
     @GetMapping("/communityEmail")
-    public String getAllEmail(@RequestParam(name = "city") String city) {
+    public List<String> getAllEmail(@RequestParam(name = "city") String city) {
         return uriService.getAllEmailsByCity(city);
     }
 }
