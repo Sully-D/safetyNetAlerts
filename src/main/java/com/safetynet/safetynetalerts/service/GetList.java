@@ -15,8 +15,8 @@ import java.util.*;
 public class GetList {
 
     private static final Logger logger = LoggerFactory.getLogger(GetList.class);
-    private static JsonToObject jsonToObject = new JsonToObject();
-    private static EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
+    private static final JsonToObject jsonToObject = new JsonToObject();
+    private static final EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
 
     /**
      * Retrieves a list of addresses served by a specific fire station number.
