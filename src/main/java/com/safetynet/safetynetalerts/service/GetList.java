@@ -223,9 +223,9 @@ public class GetList {
             for (Map<String, String> personAge : listPersonsAges) {
                 if (person.getFirstName().equals(personAge.get("firstName")) &&
                         person.getLastName().equals(personAge.get("lastName"))) {
-                    Map<String, String> mapMedicalRecords = GetList.getMedicalRecord(personAge.get("firstName"),
+                    Map<String, String> mapMedicalRecords = getMedicalRecord(personAge.get("firstName"),
                             personAge.get("lastName"));
-                    String numberFirestationByAddress = GetList.getNumberFirestationByAddress(person.getAddress());
+                    String numberFirestationByAddress = getNumberFirestationByAddress(person.getAddress());
 
                     AllInfoPerson allInfoPerson = new AllInfoPerson();
                     allInfoPerson.setFirestation(numberFirestationByAddress);
@@ -333,7 +333,7 @@ public class GetList {
         List<String> listFirestationsAddress = new ArrayList<>();
 
         for (String number : listFirestationsNumbers) {
-            List<String> listFirestationsAddressByNumber = GetList.getAddressFirestationByNumber(number);
+            List<String> listFirestationsAddressByNumber = getAddressFirestationByNumber(number);
             if (!listFirestationsAddressByNumber.isEmpty()) {
                 logger.debug("Adding addresses for fire station number: {}", number);
                 listFirestationsAddress.addAll(listFirestationsAddressByNumber);
