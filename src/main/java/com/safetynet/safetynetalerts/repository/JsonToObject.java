@@ -2,6 +2,8 @@ package com.safetynet.safetynetalerts.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
+import lombok.Data;
+import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +14,8 @@ import java.util.List;
  * Utility class for handling JSON file operations including reading from and writing to a JSON file.
  * It supports converting JSON data into Java objects and vice versa.
  */
+@Data
+@Repository
 public class JsonToObject {
 
     /**

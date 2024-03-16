@@ -2,6 +2,7 @@ package com.safetynet.safetynetalerts.service;
 
 import com.safetynet.safetynetalerts.model.AllInfoPerson;
 import com.safetynet.safetynetalerts.model.Person;
+import com.safetynet.safetynetalerts.repository.JsonToObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,11 @@ public class URI {
 
     private static final Logger logger = LoggerFactory.getLogger(URI.class);
 
-    //GetList getList = new GetList();
-    @Autowired
-    GetList getList;
+    JsonToObject jsonToObject = new JsonToObject();
+    GetList getList = new GetList(jsonToObject);
+//    @Autowired
+//    GetList getList;
+
 
     /**
      * Retrieves a list containing the number of adults and minors covered by a specific fire station, along with
@@ -42,7 +45,7 @@ public class URI {
         try {
             // Retrieves addresses associated with the given fire station number
             logger.debug("Retrieve addresses associated with station number {}", stationNumber);
-            List<String> listFirestationsAddress = GetList.getAddressFirestationByNumber(stationNumber);
+            List<String> listFirestationsAddress = getList.getAddressFirestationByNumber(stationNumber);
 
             // Retrieves persons living at the obtained addresses
             logger.debug("Recovery of people living at addresses obtained for station number {}", stationNumber);
@@ -141,7 +144,7 @@ public class URI {
 
         // Retrieves addresses associated with the given fire station number
         logger.debug("Retrieving addresses associated with firestation number: {}", firestationNumber);
-        List<String> listFirestationsAddress = GetList.getAddressFirestationByNumber(firestationNumber);
+        List<String> listFirestationsAddress = getList.getAddressFirestationByNumber(firestationNumber);
 
         if (listFirestationsAddress.isEmpty()) {
             logger.warn("No addresses found for firestation number: {}", firestationNumber);

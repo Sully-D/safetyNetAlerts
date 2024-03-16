@@ -1,7 +1,9 @@
 package com.safetynet.safetynetalerts.service;
 
 import com.safetynet.safetynetalerts.model.*;
+import com.safetynet.safetynetalerts.repository.EncapsulateModelsPrsFstMdrDAO;
 import com.safetynet.safetynetalerts.repository.JsonToObject;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -11,12 +13,20 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Data
 @Service
 public class GetList {
 
     private static final Logger logger = LoggerFactory.getLogger(GetList.class);
-    private static final JsonToObject jsonToObject = new JsonToObject();
-    private static final EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
+
+    private JsonToObject jsonToObject;
+    private EncapsulateModelsPrsFstMdr readJsonData;
+
+    public GetList(JsonToObject jsonToObject) {
+        this.jsonToObject = jsonToObject;
+        this.readJsonData = this.jsonToObject.readJsonData();
+    }
+
 
     /**
      * Retrieves a list of addresses served by a specific fire station number.
@@ -24,7 +34,7 @@ public class GetList {
      * @param stationNumber The station number to search for within the list of firestations.
      * @return A list of addresses served by the specified fire station number.
      */
-    public static List<String> getAddressFirestationByNumber(String stationNumber) {
+    public List<String> getAddressFirestationByNumber(String stationNumber) {
 
         logger.info("Retrieving addresses served by fire station number: {}", stationNumber);
 
@@ -36,7 +46,7 @@ public class GetList {
 
         List<String> listAddressStations = new ArrayList<>();
         for (Firestation firestation : listFirestations) {
-            if (firestation.getStation().equals(stationNumber)) {
+            if (Objects.equals(firestation.getStation(), stationNumber)) {
                 listAddressStations.add(firestation.getAddress());
             }
         }
@@ -176,7 +186,7 @@ public class GetList {
      * @param address The address to look up the fire station number for.
      * @return The fire station number serving the specified address, or null if not found.
      */
-    public static String getNumberFirestationByAddress(String address) {
+    public String getNumberFirestationByAddress(String address) {
 
         logger.info("Looking up fire station number for address: {}", address);
 
@@ -256,7 +266,7 @@ public class GetList {
      * @param lastName  The last name of the person.
      * @return A map containing the medical record information for the person.
      */
-    public static Map<String, String> getMedicalRecord(String firstName, String lastName) {
+    public Map<String, String> getMedicalRecord(String firstName, String lastName) {
 
         logger.info("Retrieving medical record for person: {} {}", firstName, lastName);
 
