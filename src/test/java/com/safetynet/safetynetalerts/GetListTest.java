@@ -33,7 +33,6 @@ public class GetListTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         when(jsonToObject.readJsonData()).thenReturn(readJsonData);
-        // getList = new GetList(jsonToObject); // Supprimez cette ligne
         getList.init();
     }
 

@@ -1,7 +1,6 @@
 package com.safetynet.safetynetalerts.service;
 
 import com.safetynet.safetynetalerts.model.*;
-import com.safetynet.safetynetalerts.repository.EncapsulateModelsPrsFstMdrDAO;
 import com.safetynet.safetynetalerts.repository.JsonToObject;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
