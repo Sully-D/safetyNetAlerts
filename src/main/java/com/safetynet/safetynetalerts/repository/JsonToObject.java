@@ -2,7 +2,10 @@ package com.safetynet.safetynetalerts.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
+import com.safetynet.safetynetalerts.service.GetList;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
@@ -17,6 +20,8 @@ import java.util.List;
 @Data
 @Repository
 public class JsonToObject {
+
+    private static final Logger logger = LoggerFactory.getLogger(JsonToObject.class);
 
     /**
      * Loads the JSON file as an InputStream from the resources directory.
@@ -47,10 +52,12 @@ public class JsonToObject {
         ObjectMapper objectMapper = new ObjectMapper();
         try (InputStream is = loadJsonFileAsStream()) {
             if (is == null) {
+                logger.error("JSON data file not found.");
                 throw new IOException("JSON data file not found.");
             }
             dataJson = objectMapper.readValue(is, EncapsulateModelsPrsFstMdr.class);
         } catch (IOException e) {
+            logger.error("Error reading JSON file", e);
             throw new RuntimeException("Error reading JSON file", e);
         }
         return dataJson;

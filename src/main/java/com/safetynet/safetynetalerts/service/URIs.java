@@ -17,14 +17,16 @@ import java.util.stream.Collectors;
  * detailed person and fire station information by address, and more.
  */
 @Service
-public class URI {
+public class URIs {
 
-    private static final Logger logger = LoggerFactory.getLogger(URI.class);
+    private static final Logger logger = LoggerFactory.getLogger(URIs.class);
 
-    JsonToObject jsonToObject = new JsonToObject();
-    GetList getList = new GetList(jsonToObject);
-//    @Autowired
-//    GetList getList;
+//    JsonToObject jsonToObject = new JsonToObject();
+//    GetList getList = new GetList(jsonToObject);
+    @Autowired
+    JsonToObject jsonToObject;
+    @Autowired
+    GetList getList;
 
 
     /**

@@ -1,5 +1,6 @@
 package com.safetynet.safetynetalerts.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
  * equals, and hashCode methods.
  */
 @Data
+@AllArgsConstructor
 public class AllInfoPerson {
 
     String firestation;

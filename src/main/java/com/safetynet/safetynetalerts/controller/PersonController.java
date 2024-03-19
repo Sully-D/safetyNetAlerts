@@ -2,6 +2,7 @@ package com.safetynet.safetynetalerts.controller;
 
 import com.safetynet.safetynetalerts.model.Person;
 import com.safetynet.safetynetalerts.repository.ImplEncapsulateModelsPrsFstMdrDAOPerson;
+import com.safetynet.safetynetalerts.service.URIs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class PersonController {
     private ImplEncapsulateModelsPrsFstMdrDAOPerson personService;
 
     @Autowired
-    private com.safetynet.safetynetalerts.service.URI uriService;
+    private URIs URIsService;
 
     /**
      * Adds a new person to the system.
@@ -89,7 +90,7 @@ public class PersonController {
      */
     @GetMapping("/firestation")
     public List<String> getPersonCoverByFirestation(@RequestParam(name = "stationNumber", required = false) String stationNumber) {
-        return uriService.getPersonsCoverByFirestation(stationNumber);
+        return URIsService.getPersonsCoverByFirestation(stationNumber);
     }
 
     /**
@@ -100,7 +101,7 @@ public class PersonController {
      */
     @GetMapping("/childAlert")
     public List<String> getMinorChildAtAddress(@RequestParam(name = "address") String address){
-        return uriService.getChildrenAtAddress(address);
+        return URIsService.getChildrenAtAddress(address);
     }
 
     /**
@@ -111,7 +112,7 @@ public class PersonController {
      */
     @GetMapping("/phoneAlert")
     public List<String> getPhoneCoverByFirestation(@RequestParam(name = "firestation") String firestation){
-        return uriService.getPhonesNumbersByFirestation(firestation);
+        return URIsService.getPhonesNumbersByFirestation(firestation);
     }
 
     /**
@@ -122,7 +123,7 @@ public class PersonController {
      */
     @GetMapping("/fire")
     public List<String> getPersonAndFirestationNumberByAddress(@RequestParam(name = "address") String address){
-        return uriService.getPersonsAndFirestationNumberByAddress(address);
+        return URIsService.getPersonsAndFirestationNumberByAddress(address);
     }
 
     /**
@@ -133,7 +134,7 @@ public class PersonController {
      */
     @GetMapping("/flood/stations")
     public List<String> getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
-        return uriService.getAddressCoverByFirestation(stations);
+        return URIsService.getAddressCoverByFirestation(stations);
     }
 
     /**
@@ -146,7 +147,7 @@ public class PersonController {
     @GetMapping("/personInfo")
     public List<String> getPersonInfo(@RequestParam(name = "firstname") String firstname,
                                       @RequestParam(name = "lastname") String lastname){
-        return uriService.getPersonsInfo(firstname, lastname);
+        return URIsService.getPersonsInfo(firstname, lastname);
     }
 
     /**
@@ -157,6 +158,6 @@ public class PersonController {
      */
     @GetMapping("/communityEmail")
     public List<String> getAllEmail(@RequestParam(name = "city") String city) {
-        return uriService.getAllEmailsByCity(city);
+        return URIsService.getAllEmailsByCity(city);
     }
 }

@@ -3,9 +3,11 @@ package com.safetynet.safetynetalerts.service;
 import com.safetynet.safetynetalerts.model.*;
 import com.safetynet.safetynetalerts.repository.EncapsulateModelsPrsFstMdrDAO;
 import com.safetynet.safetynetalerts.repository.JsonToObject;
+import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,9 +24,18 @@ public class GetList {
     private JsonToObject jsonToObject;
     private EncapsulateModelsPrsFstMdr readJsonData;
 
+    @Autowired
     public GetList(JsonToObject jsonToObject) {
         this.jsonToObject = jsonToObject;
-        this.readJsonData = this.jsonToObject.readJsonData();
+    }
+
+    @PostConstruct
+    public void init() {
+        try {
+            this.readJsonData = this.jsonToObject.readJsonData();
+        } catch (Exception e) {
+            logger.error("Failed to initialize GetList due to an error in readJsonData", e);
+        }
     }
 
 
@@ -128,10 +139,10 @@ public class GetList {
                     entry.put("lastName", person.getLastName());
                     entry.put("address", person.getAddress());
                     entry.put("phone", person.getPhone());
-                    entry.put("age", String.valueOf(age.getYears())); // Changed from "year" to "age" for clarity
+                    entry.put("age", String.valueOf(age.getYears()));
                     listPersonsAges.add(entry);
                     foundRecord = true;
-                    break; // Assuming one record per person, break after finding it
+                    break;
                 }
             }
             if (!foundRecord) {
@@ -237,16 +248,16 @@ public class GetList {
                             personAge.get("lastName"));
                     String numberFirestationByAddress = getNumberFirestationByAddress(person.getAddress());
 
-                    AllInfoPerson allInfoPerson = new AllInfoPerson();
-                    allInfoPerson.setFirestation(numberFirestationByAddress);
-                    allInfoPerson.setAddress(person.getAddress());
-                    allInfoPerson.setLastName(person.getLastName());
-                    allInfoPerson.setFirstName(person.getFirstName());
-                    allInfoPerson.setAge(personAge.get("age"));
-                    allInfoPerson.setMedications(mapMedicalRecords.get("medications"));
-                    allInfoPerson.setAllergies(mapMedicalRecords.get("allergies"));
-                    allInfoPerson.setEmail(person.getEmail());
-                    allInfoPerson.setPhone(person.getPhone());
+                    AllInfoPerson allInfoPerson = new AllInfoPerson(numberFirestationByAddress,
+                            person.getAddress(),
+                            person.getLastName(),
+                            person.getFirstName(),
+                            personAge.get("age"),
+                            mapMedicalRecords.get("medications"),
+                            mapMedicalRecords.get("allergies"),
+                            person.getEmail(),
+                            person.getPhone()
+                    );
 
                     listPersonsAndFirestationsNumberByAddress.add(allInfoPerson);
 

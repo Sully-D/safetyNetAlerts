@@ -1,8 +1,12 @@
 package com.safetynet.safetynetalerts.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,27 +15,20 @@ import java.util.List;
  * Utilizes Lombok to generate boilerplate code such as getters, setters, toString,
  * equals, and hashCode methods.
  */
+@NoArgsConstructor
 @Data
 public class EncapsulateModelsPrsFstMdr {
 
-    /**
-     * List of {@link Person} objects representing individuals.
-     * Annotated with @JsonProperty to map the "persons" field in JSON.
-     */
-    @JsonProperty("persons")
-    private List<Person> personList;
+    private List<Person> personList = new ArrayList<>();
+    private List<Firestation> firestationList = new ArrayList<>();
+    private List<Medicalrecord> medicalrecordList = new ArrayList<>();
 
-    /**
-     * List of {@link Firestation} objects representing fire station assignments.
-     * Annotated with @JsonProperty to map the "firestations" field in JSON.
-     */
-    @JsonProperty("firestations")
-    private List<Firestation> firestationList;
-
-    /**
-     * List of {@link Medicalrecord} objects representing individuals' medical records.
-     * Annotated with @JsonProperty to map the "medicalrecords" field in JSON.
-     */
-    @JsonProperty("medicalrecords")
-    private List<Medicalrecord> medicalrecordList;
+    @JsonCreator
+    public EncapsulateModelsPrsFstMdr(@JsonProperty("persons") List<Person> personList,
+                                      @JsonProperty("firestations") List<Firestation> firestationList,
+                                      @JsonProperty("medicalrecords") List<Medicalrecord> medicalrecordList) {
+        this.personList = personList != null ? personList : new ArrayList<>();
+        this.firestationList = firestationList != null ? firestationList : new ArrayList<>();
+        this.medicalrecordList = medicalrecordList != null ? medicalrecordList : new ArrayList<>();
+    }
 }
