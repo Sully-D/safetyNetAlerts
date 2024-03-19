@@ -100,13 +100,14 @@ public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements Encapsula
      * Deletes a {@link Medicalrecord} from the JSON data store.
      *
      * @param medicalrecordToDelete The {@link Medicalrecord} object to delete.
+     * @return
      */
     @Override
-    public void delete(Medicalrecord medicalrecordToDelete) {
+    public boolean delete(Medicalrecord medicalrecordToDelete) {
 
         if (medicalrecordToDelete == null) {
             logger.warn("Attempted to delete a null Medicalrecord object.");
-            return;
+            return false;
         }
 
         logger.info("Attempting to delete Medicalrecord for: {} {}", medicalrecordToDelete.getFirstName(), medicalrecordToDelete.getLastName());
@@ -127,5 +128,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements Encapsula
         } else {
             logger.warn("Medicalrecord to delete was not found for: {} {}", medicalrecordToDelete.getFirstName(), medicalrecordToDelete.getLastName());
         }
+        return removalSuccess;
     }
 }

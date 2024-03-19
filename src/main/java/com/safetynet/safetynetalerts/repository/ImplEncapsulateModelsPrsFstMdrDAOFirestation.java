@@ -95,13 +95,14 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
      * Deletes a firestation record from the JSON data store.
      *
      * @param firestationToDelete The Firestation object to delete.
+     * @return
      */
     @Override
-    public void delete(Firestation firestationToDelete) {
+    public boolean delete(Firestation firestationToDelete) {
 
         if (firestationToDelete == null) {
             logger.warn("Attempted to delete a null Firestation object.");
-            return;
+            return false;
         }
 
         logger.info("Deleting firestation record: Station number {}, Address {}", firestationToDelete.getStation(), firestationToDelete.getAddress());
@@ -122,5 +123,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
         } else {
             logger.warn("Firestation record to delete was not found: Station number {}, Address {}", firestationToDelete.getStation(), firestationToDelete.getAddress());
         }
+        return removalResult;
     }
 }

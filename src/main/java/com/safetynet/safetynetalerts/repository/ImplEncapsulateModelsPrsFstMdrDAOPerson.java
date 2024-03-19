@@ -108,13 +108,14 @@ public class ImplEncapsulateModelsPrsFstMdrDAOPerson implements EncapsulateModel
      * Deletes a person record from the JSON data store.
      *
      * @param personToDelete The {@link Person} object to delete.
+     * @return
      */
     @Override
-    public void delete(Person personToDelete) {
+    public boolean delete(Person personToDelete) {
 
         if (personToDelete == null) {
             logger.warn("Attempted to delete a null Person object.");
-            return;
+            return false;
         }
 
         logger.info("Attempting to delete Person record: {} {}", personToDelete.getFirstName(), personToDelete.getLastName());
@@ -135,6 +136,7 @@ public class ImplEncapsulateModelsPrsFstMdrDAOPerson implements EncapsulateModel
         } else {
             logger.warn("Person record to delete was not found: {} {}", personToDelete.getFirstName(), personToDelete.getLastName());
         }
+        return removalSuccess;
     }
 
 }

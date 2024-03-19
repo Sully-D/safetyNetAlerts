@@ -24,15 +24,12 @@ public class FirestationController {
      * Adds a new fire station record to the system.
      *
      * @param firestation The fire station object to be added, received as a request body.
-     * @return A ResponseEntity with the location of the added firestation or no content if the firestation object is null.
+     * @return A ResponseEntity with the location of the added firestation
      */
     @PostMapping("/firestation")
     public ResponseEntity<Object> add(@RequestBody Firestation firestation) {
         firestationService.add(firestation);
-        // Check if the firestation object is null after attempt to add
-        if (Objects.isNull(firestation)) {
-            return ResponseEntity.noContent().build();
-        }
+
         // Creating URI for the newly added firestation
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -47,17 +44,20 @@ public class FirestationController {
      * The method expects a fire station object in the request body with updated information.
      *
      * @param firestation The fire station object containing updated data.
-     * @return A ResponseEntity with code 200 for updated firestation or no content if the firestation object is null.
+     * @return A ResponseEntity with code 200 for updated firestation
      */
     @PatchMapping("/firestation")
     public ResponseEntity<Object> update(@RequestBody Firestation firestation) {
         firestationService.update(firestation);
-        // Check if the firestation object is null after attempt to update
-        if (Objects.isNull(firestation)) {
-            return ResponseEntity.noContent().build();
-        }
-        // Code 200 for the updated firestation
-        return ResponseEntity.ok().build();
+
+        // Creating URI for the updated firestation
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{address}")
+                .buildAndExpand(firestation.getAddress())
+                .toUri();
+
+        return ResponseEntity.ok().location(location).build();
     }
 
     /**
@@ -65,16 +65,18 @@ public class FirestationController {
      * The method expects a fire station object in the request body that should be removed.
      *
      * @param firestation The fire station object to be deleted.
-     * @return A ResponseEntity with code 200 for deleted person or no content if the person object is null.
+     * @return A ResponseEntity with code 200 for deleted person
      */
     @DeleteMapping("/firestation")
     public ResponseEntity<Object> delete(@RequestBody Firestation firestation) {
-        firestationService.delete(firestation);
-        // Check if the firestation object is null after attempt to add
-        if (Objects.isNull(firestation)) {
-            return ResponseEntity.noContent().build();
+        boolean isDeleted = firestationService.delete(firestation);
+
+        if (!isDeleted) {
+            // Suppose isDeleted est false si la firestation n'a pas été trouvée ou n'a pas pu être supprimée
+            return ResponseEntity.notFound().build();
         }
-        // Code 200 for deleted firestation
+
+        // Code 200 pour indiquer que la suppression a réussi
         return ResponseEntity.ok().build();
     }
 }
