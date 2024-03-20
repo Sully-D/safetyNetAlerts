@@ -2,8 +2,10 @@ package com.safetynet.safetynetalerts.repository;
 
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import com.safetynet.safetynetalerts.model.Firestation;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +17,23 @@ import java.util.Optional;
  */
 @Repository
 public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements EncapsulateModelsPrsFstMdrDAO<Firestation> {
+
+    private JsonToObject jsonToObject;
+    private EncapsulateModelsPrsFstMdr readJsonData;
+
+    @Autowired
+    public ImplEncapsulateModelsPrsFstMdrDAOFirestation(JsonToObject jsonToObject) {
+        this.jsonToObject = jsonToObject;
+    }
+     @PostConstruct
+        public void init() {
+            try {
+                this.readJsonData = this.jsonToObject.readJsonData();
+            } catch (Exception e) {
+                logger.error("Failed to initialize ImplEncapsulateModelsPrsFstMdrDAOFirestation due to an error in readJsonData", e);
+            }
+        }
+
 
     private static final Logger logger = LoggerFactory.getLogger(ImplEncapsulateModelsPrsFstMdrDAOFirestation.class);
 
@@ -34,8 +53,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
 
         logger.info("Adding a new firestation record: Station number {}, Address {}", firestation.getStation(), firestation.getAddress());
 
-        JsonToObject jsonToObject = new JsonToObject();
-        EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         if (readJsonData == null) {
             logger.error("Failed to read the current JSON data store.");
             return null;
@@ -70,8 +87,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
 
         logger.info("Updating firestation record for address: {}", firestationUpdate.getAddress());
 
-        JsonToObject jsonToObject = new JsonToObject();
-        EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Firestation> firestationList = readJsonData.getFirestationList();
 
         Optional<Firestation> findFirestation = firestationList.stream()
@@ -107,8 +122,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestation implements Encapsulate
 
         logger.info("Deleting firestation record: Station number {}, Address {}", firestationToDelete.getStation(), firestationToDelete.getAddress());
 
-        JsonToObject jsonToObject = new JsonToObject();
-        EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Firestation> firestationList = readJsonData.getFirestationList();
 
         boolean removalResult = firestationList.removeIf(firestation -> firestation.equals(firestationToDelete));

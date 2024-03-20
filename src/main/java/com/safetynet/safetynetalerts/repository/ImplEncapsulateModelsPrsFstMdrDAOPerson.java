@@ -2,9 +2,11 @@ package com.safetynet.safetynetalerts.repository;
 
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import com.safetynet.safetynetalerts.model.Person;
+import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,6 +19,22 @@ import java.util.Optional;
 @Data
 @Repository
 public class ImplEncapsulateModelsPrsFstMdrDAOPerson implements EncapsulateModelsPrsFstMdrDAO<Person> {
+
+    private JsonToObject jsonToObject;
+    private EncapsulateModelsPrsFstMdr readJsonData;
+
+    @Autowired
+    public ImplEncapsulateModelsPrsFstMdrDAOPerson(JsonToObject jsonToObject) {
+        this.jsonToObject = jsonToObject;
+    }
+    @PostConstruct
+    public void init() {
+        try {
+            this.readJsonData = this.jsonToObject.readJsonData();
+        } catch (Exception e) {
+            logger.error("Failed to initialize ImplEncapsulateModelsPrsFstMdrDAOPerson due to an error in readJsonData", e);
+        }
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(ImplEncapsulateModelsPrsFstMdrDAOPerson.class);
 
@@ -36,8 +54,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOPerson implements EncapsulateModel
 
         logger.info("Adding a new Person record to the data store: {} {}", person.getFirstName(), person.getLastName());
 
-        JsonToObject jsonToObject = new JsonToObject();
-        EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Person> personList = readJsonData.getPersonList();
 
         // Check if the person already exists
@@ -77,8 +93,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOPerson implements EncapsulateModel
 
         logger.info("Attempting to update Person record for: {} {}", personUpdate.getFirstName(), personUpdate.getLastName());
 
-        JsonToObject jsonToObject = new JsonToObject();
-        EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Person> personList = readJsonData.getPersonList();
 
         Optional<Person> findPerson = personList.stream()
@@ -120,8 +134,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOPerson implements EncapsulateModel
 
         logger.info("Attempting to delete Person record: {} {}", personToDelete.getFirstName(), personToDelete.getLastName());
 
-        JsonToObject jsonToObject = new JsonToObject();
-        EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Person> personList = readJsonData.getPersonList();
 
         boolean removalSuccess = personList.removeIf(person -> person.equals(personToDelete));

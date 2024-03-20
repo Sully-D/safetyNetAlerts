@@ -79,20 +79,4 @@ public class JsonToObject {
         }
         return true;
     }
-
-    /**
-     * Converts a list of strings into a JSON string.
-     *
-     * @param listToConvert The list of strings to convert into JSON format.
-     * @return A JSON string representation of the list or null if the conversion fails.
-     */
-    public String writeListToJson(List<String> listToConvert){
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(listToConvert);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }

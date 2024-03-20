@@ -2,8 +2,10 @@ package com.safetynet.safetynetalerts.repository;
 
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import com.safetynet.safetynetalerts.model.Medicalrecord;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,6 +18,22 @@ import java.util.Optional;
  */
 @Repository
 public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements EncapsulateModelsPrsFstMdrDAO<Medicalrecord> {
+
+    private JsonToObject jsonToObject;
+    private EncapsulateModelsPrsFstMdr readJsonData;
+
+    @Autowired
+    public ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord(JsonToObject jsonToObject) {
+        this.jsonToObject = jsonToObject;
+    }
+    @PostConstruct
+    public void init() {
+        try {
+            this.readJsonData = this.jsonToObject.readJsonData();
+        } catch (Exception e) {
+            logger.error("Failed to initialize ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord due to an error in readJsonData", e);
+        }
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord.class);
 
@@ -35,8 +53,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements Encapsula
 
         logger.info("Adding a new Medicalrecord to the data store: {} {}", medicalrecord.getFirstName(), medicalrecord.getLastName());
 
-        JsonToObject jsonToObject = new JsonToObject();
-        EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
 
         // Check for existing records before adding
@@ -74,8 +90,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements Encapsula
 
         logger.info("Updating Medicalrecord for: {} {}", medicalrecordUpdate.getFirstName(), medicalrecordUpdate.getLastName());
 
-        JsonToObject jsonToObject = new JsonToObject();
-        EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
 
         Optional<Medicalrecord> findPerson = medicalrecordList.stream()
@@ -112,8 +126,6 @@ public class ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord implements Encapsula
 
         logger.info("Attempting to delete Medicalrecord for: {} {}", medicalrecordToDelete.getFirstName(), medicalrecordToDelete.getLastName());
 
-        JsonToObject jsonToObject = new JsonToObject();
-        EncapsulateModelsPrsFstMdr readJsonData = jsonToObject.readJsonData();
         List<Medicalrecord> medicalrecordList = readJsonData.getMedicalrecordList();
 
         boolean removalSuccess = medicalrecordList.removeIf(person -> person.equals(medicalrecordToDelete));
