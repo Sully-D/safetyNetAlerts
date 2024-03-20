@@ -30,15 +30,12 @@ public class PersonController {
      * Adds a new person to the system.
      *
      * @param person The person to be added.
-     * @return A ResponseEntity with the location of the added person or no content if the person object is null.
+     * @return A ResponseEntity with the location of the added person
      */
     @PostMapping("/person")
     public ResponseEntity<Person> addPerson(@RequestBody Person person) {
         personService.add(person);
-        // Check if the person object is null after attempt to add
-        if (Objects.isNull(person)) {
-            return ResponseEntity.noContent().build();
-        }
+
         // Creating URI for the newly added person
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -52,32 +49,39 @@ public class PersonController {
      * Updates information for an existing person.
      *
      * @param person The person with updated information.
-     * @return A ResponseEntity 200 for updated person or no content if the person object is null.
+     * @return A ResponseEntity 200 for updated person
      */
     @PatchMapping("/person")
     public ResponseEntity<Object> updatePerson(@RequestBody Person person) {
         personService.update(person);
-        // Check if the person object is null after attempt to update
-        if (Objects.isNull(person)) {
-            return ResponseEntity.noContent().build();
-        }
+
+        // Creating URI for the updated firestation
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{firstName}/{lastName}")
+                .buildAndExpand(person.getFirstName(), person.getLastName())
+                .toUri();
+
         // Code 200 update person
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().location(location).build();
     }
 
     /**
      * Deletes a person from the system.
      *
      * @param person The person to be deleted.
-     * @return A ResponseEntity 200 for delete person or no content if the person object is null.
+     * @return A ResponseEntity 200 for delete person
      */
     @DeleteMapping("/person")
     public ResponseEntity<Object> deletePerson(@RequestBody Person person) {
-        personService.delete(person);
-        // Check if the person object is null after attempt to delete
-        if (Objects.isNull(person)) {
-            return ResponseEntity.noContent().build();
+        boolean isDeleted = personService.delete(person);
+
+        if (!isDeleted) {
+            // Assume isDeleted is false if the person was not found or could not be deleted
+            return ResponseEntity.notFound().build();
         }
+
         // Code 200 for delete person
         return ResponseEntity.ok().build();
     }
@@ -89,8 +93,9 @@ public class PersonController {
      * @return A list of strings with information about the persons covered by the fire station.
      */
     @GetMapping("/firestation")
-    public List<String> getPersonCoverByFirestation(@RequestParam(name = "stationNumber", required = false) String stationNumber) {
-        return URIsService.getPersonsCoverByFirestation(stationNumber);
+    public ResponseEntity<List<String>>  getPersonCoverByFirestation(@RequestParam(name = "stationNumber", required = false) String stationNumber) {
+        List<String> coveredPersons = URIsService.getPersonsCoverByFirestation(stationNumber);
+        return ResponseEntity.ok(coveredPersons);
     }
 
     /**
@@ -100,8 +105,9 @@ public class PersonController {
      * @return A list of strings with information about the minors at the address.
      */
     @GetMapping("/childAlert")
-    public List<String> getMinorChildAtAddress(@RequestParam(name = "address") String address){
-        return URIsService.getChildrenAtAddress(address);
+    public ResponseEntity<List<String>> getMinorChildAtAddress(@RequestParam(name = "address") String address){
+        List<String> minorChildren = URIsService.getChildrenAtAddress(address);
+        return ResponseEntity.ok(minorChildren);
     }
 
     /**
@@ -111,8 +117,9 @@ public class PersonController {
      * @return A list of phone numbers of residents covered by the fire station.
      */
     @GetMapping("/phoneAlert")
-    public List<String> getPhoneCoverByFirestation(@RequestParam(name = "firestation") String firestation){
-        return URIsService.getPhonesNumbersByFirestation(firestation);
+    public ResponseEntity<List<String>> getPhoneCoverByFirestation(@RequestParam(name = "firestation") String firestation){
+        List<String> coveredPhone = URIsService.getPhonesNumbersByFirestation(firestation);
+        return ResponseEntity.ok(coveredPhone);
     }
 
     /**
