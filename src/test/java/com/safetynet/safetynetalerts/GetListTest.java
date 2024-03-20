@@ -49,7 +49,7 @@ public class GetListTest {
         List<String> addresses = getList.getAddressFirestationByNumber("1");
 
         // Assertions
-        assertEquals(1, addresses.size(), "Le nombre d'adresses retournées devrait être 1");
+        assertEquals(1, addresses.size());
     }
 
     @Test
