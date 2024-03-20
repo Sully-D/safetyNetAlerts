@@ -118,8 +118,8 @@ public class PersonController {
      */
     @GetMapping("/phoneAlert")
     public ResponseEntity<List<String>> getPhoneCoverByFirestation(@RequestParam(name = "firestation") String firestation){
-        List<String> coveredPhone = URIsService.getPhonesNumbersByFirestation(firestation);
-        return ResponseEntity.ok(coveredPhone);
+        List<String> coveredPhones = URIsService.getPhonesNumbersByFirestation(firestation);
+        return ResponseEntity.ok(coveredPhones);
     }
 
     /**
@@ -129,8 +129,9 @@ public class PersonController {
      * @return A list of AllInfoPerson objects with detailed information.
      */
     @GetMapping("/fire")
-    public List<String> getPersonAndFirestationNumberByAddress(@RequestParam(name = "address") String address){
-        return URIsService.getPersonsAndFirestationNumberByAddress(address);
+    public ResponseEntity<List<String>> getPersonAndFirestationNumberByAddress(@RequestParam(name = "address") String address){
+        List<String> personsAndFirestations = URIsService.getPersonsAndFirestationNumberByAddress(address);
+        return ResponseEntity.ok(personsAndFirestations);
     }
 
     /**
@@ -140,8 +141,9 @@ public class PersonController {
      * @return A list of AllInfoPerson objects with detailed information about the homes covered.
      */
     @GetMapping("/flood/stations")
-    public List<String> getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
-        return URIsService.getAddressCoverByFirestation(stations);
+    public ResponseEntity<List<String>> getHomeCoverByFirestation(@RequestParam(name = "stations") List<String> stations){
+        List<String> coveredAddress =  URIsService.getAddressCoverByFirestation(stations);
+        return ResponseEntity.ok(coveredAddress);
     }
 
     /**
@@ -149,22 +151,24 @@ public class PersonController {
      *
      * @param firstname The first name of the person.
      * @param lastname  The last name of the person.
-     * @return A string containing JSON-formatted detailed information about the person.
+     * @return A string containing detailed information about the person.
      */
     @GetMapping("/personInfo")
-    public List<String> getPersonInfo(@RequestParam(name = "firstname") String firstname,
+    public ResponseEntity<List<String>> getPersonInfo(@RequestParam(name = "firstname") String firstname,
                                       @RequestParam(name = "lastname") String lastname){
-        return URIsService.getPersonsInfo(firstname, lastname);
+        List<String> personInfos = URIsService.getPersonsInfo(firstname, lastname);
+        return ResponseEntity.ok(personInfos);
     }
 
     /**
      * Retrieves all email addresses for residents within a specified city.
      *
      * @param city The city to query for resident emails.
-     * @return A string containing JSON-formatted list of emails.
+     * @return A string containing list of emails.
      */
     @GetMapping("/communityEmail")
-    public List<String> getAllEmail(@RequestParam(name = "city") String city) {
-        return URIsService.getAllEmailsByCity(city);
+    public ResponseEntity<List<String>> getAllEmail(@RequestParam(name = "city") String city) {
+        List<String> allEmails = URIsService.getAllEmailsByCity(city);
+        return ResponseEntity.ok(allEmails);
     }
 }

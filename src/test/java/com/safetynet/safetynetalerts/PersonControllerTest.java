@@ -140,5 +140,60 @@ public class PersonControllerTest {
                 .andExpect(content().json("[\"123-456-7890\",\"098-765-4321\"]"));
     }
 
+    @Test
+    public void getPersonAndFirestationNumberByAddress_ReturnsListOfPersonsAndFirestationNumber() throws Exception {
+        // Given
+        List<String> expectedData = Arrays.asList("John Doe, Station 1", "Jane Doe, Station 1");
+        when(URIsService.getPersonsAndFirestationNumberByAddress(eq("123 Main St"))).thenReturn(expectedData);
 
+        // When & Then
+        mockMvc.perform(get("/fire")
+                        .param("address", "123 Main St")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[\"John Doe, Station 1\",\"Jane Doe, Station 1\"]"));
+    }
+
+    @Test
+    public void getHomeCoverByFirestation_ReturnsListOfCoveredAddresses() throws Exception {
+        // Given
+        List<String> expectedAddresses = Arrays.asList("123 Main St", "456 Elm St");
+        when(URIsService.getAddressCoverByFirestation(any())).thenReturn(expectedAddresses);
+
+        // When & Then
+        mockMvc.perform(get("/flood/stations")
+                        .param("stations", "1", "2") // Simulate request parameter for multiple stations
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[\"123 Main St\",\"456 Elm St\"]"));
+    }
+
+    @Test
+    public void getPersonInfo_ReturnsPersonInfos() throws Exception {
+        // Given
+        List<String> expectedPersonInfos = Arrays.asList("John Doe, 30, 123 Main St", "Jane Doe, 25, 123 Main St");
+        when(URIsService.getPersonsInfo(eq("John"), eq("Doe"))).thenReturn(expectedPersonInfos);
+
+        // When & Then
+        mockMvc.perform(get("/personInfo")
+                        .param("firstname", "John")
+                        .param("lastname", "Doe")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[\"John Doe, 30, 123 Main St\",\"Jane Doe, 25, 123 Main St\"]"));
+    }
+
+    @Test
+    public void getAllEmail_ReturnsEmailsOfCityResidents() throws Exception {
+        // Given
+        List<String> expectedEmails = Arrays.asList("john.doe@example.com", "jane.doe@example.com");
+        when(URIsService.getAllEmailsByCity(eq("Anytown"))).thenReturn(expectedEmails);
+
+        // When & Then
+        mockMvc.perform(get("/communityEmail")
+                        .param("city", "Anytown")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[\"john.doe@example.com\",\"jane.doe@example.com\"]"));
+    }
 }
