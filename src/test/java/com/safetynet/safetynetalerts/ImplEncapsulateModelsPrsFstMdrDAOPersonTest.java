@@ -115,4 +115,38 @@ public class ImplEncapsulateModelsPrsFstMdrDAOPersonTest {
         verify(jsonToObject, never()).saveJsonData(any(EncapsulateModelsPrsFstMdr.class));
     }
 
+    @Test
+    void deletePerson_Successfully() {
+        Person personToDelete = new Person("John", "Doe", "123", "Test", "12345",
+                "555-1234", "johndoe@example.com");
+        readJsonData.getPersonList().add(personToDelete);
+
+        when(jsonToObject.saveJsonData(readJsonData)).thenReturn(true);
+
+        boolean result = daoPerson.delete(personToDelete);
+
+        assertTrue(result);
+        assertFalse(readJsonData.getPersonList().contains(personToDelete));
+        verify(jsonToObject, times(1)).saveJsonData(readJsonData);
+    }
+
+    @Test
+    void deletePerson_NotFound() {
+        Person personToDelete = new Person("Jane", "Doe", "Address 1", "Test", "12345",
+                "555-6789", "janedoe@example.com");
+
+        boolean result = daoPerson.delete(personToDelete);
+
+        assertFalse(result);
+        verify(jsonToObject, never()).saveJsonData(any(EncapsulateModelsPrsFstMdr.class));
+    }
+
+    @Test
+    void deletePerson_NullObject() {
+        boolean result = daoPerson.delete(null);
+
+        assertFalse(result);
+        verify(jsonToObject, never()).saveJsonData(any(EncapsulateModelsPrsFstMdr.class));
+    }
+
 }
