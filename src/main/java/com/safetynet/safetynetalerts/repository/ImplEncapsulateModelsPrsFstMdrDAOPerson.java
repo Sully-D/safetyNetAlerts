@@ -66,8 +66,8 @@ public class ImplEncapsulateModelsPrsFstMdrDAOPerson implements EncapsulateModel
 
         personList.add(person);
         readJsonData.setPersonList(personList);
-        boolean saveResult = jsonToObject.saveJsonData(readJsonData);
 
+        boolean saveResult = jsonToObject.saveJsonData(readJsonData);
         if (!saveResult) {
             logger.error("Failed to save the updated JSON data store after adding new Person for: {} {}", person.getFirstName(), person.getLastName());
             return null;
