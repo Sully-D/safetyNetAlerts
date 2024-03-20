@@ -72,11 +72,11 @@ public class FirestationController {
         boolean isDeleted = firestationService.delete(firestation);
 
         if (!isDeleted) {
-            // Suppose isDeleted est false si la firestation n'a pas été trouvée ou n'a pas pu être supprimée
+            // Assume isDeleted is false if the firestation was not found or could not be deleted
             return ResponseEntity.notFound().build();
         }
 
-        // Code 200 pour indiquer que la suppression a réussi
+        // // Code 200 if deleted
         return ResponseEntity.ok().build();
     }
 }

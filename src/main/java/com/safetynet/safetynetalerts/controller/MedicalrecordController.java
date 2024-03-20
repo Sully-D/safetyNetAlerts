@@ -4,6 +4,7 @@ import com.safetynet.safetynetalerts.model.Medicalrecord;
 import com.safetynet.safetynetalerts.repository.ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -24,23 +25,21 @@ public class MedicalrecordController {
      * Adds a new medical record to the system.
      *
      * @param medicalrecord The medical record to be added, encapsulated within the request body.
-     * @return A ResponseEntity with the location of the added medicalrecord or no content if the medicalrecord object is null.
+     * @return A ResponseEntity with the location of the added medicalrecord
      */
     @PostMapping("/medicalRecord")
-    public ResponseEntity<Object> add(@RequestBody Medicalrecord medicalrecord) {
+    public ResponseEntity<Object> add(@Validated @RequestBody Medicalrecord medicalrecord) {
         medicalrecordService.add(medicalrecord);
-        // Check if the medicalrecord object is null after attempt to add
-        if (Objects.isNull(medicalrecord)) {
-            return ResponseEntity.noContent().build();
-        }
-        // Creating URI for the newly added medicalrecord
+
+        // Creating URI for the newly added medicalrecord using both firstName and lastName
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
-                .path("/{firstName}")
-                .buildAndExpand(medicalrecord.getFirstName())
+                .path("/{firstName}/{lastName}")
+                .buildAndExpand(medicalrecord.getFirstName(), medicalrecord.getLastName())
                 .toUri();
         return ResponseEntity.created(location).build();
     }
+
 
     /**
      * Updates an existing medical record in the system.
@@ -53,12 +52,14 @@ public class MedicalrecordController {
     @PatchMapping("/medicalRecord")
     public ResponseEntity<Object> update(@RequestBody Medicalrecord medicalrecord) {
         medicalrecordService.update(medicalrecord);
-        // Check if the medicalrecord object is null after attempt to update
-        if (Objects.isNull(medicalrecord)) {
-            return ResponseEntity.noContent().build();
-        }
+
         // Code 200 for the updated medicalrecord
-        return ResponseEntity.ok().build();
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{firstName}/{lastName}")
+                .buildAndExpand(medicalrecord.getFirstName(), medicalrecord.getLastName())
+                .toUri();
+        return ResponseEntity.ok().location(location).build();
     }
 
     /**
@@ -71,11 +72,13 @@ public class MedicalrecordController {
      */
     @DeleteMapping("/medicalRecord")
     public ResponseEntity<Object> delete(@RequestBody Medicalrecord medicalrecord) {
-        medicalrecordService.delete(medicalrecord);
-        // Check if the medicalrecord object is null after attempt to update
-        if (Objects.isNull(medicalrecord)) {
-            return ResponseEntity.noContent().build();
+        boolean isDeleted = medicalrecordService.delete(medicalrecord);
+
+        if (!isDeleted) {
+            // Assume isDeleted is false if the medicalrecord was not found or could not be deleted
+            return ResponseEntity.notFound().build();
         }
+
         // Code 200 for the updated medicalrecord
         return ResponseEntity.ok().build();
     }

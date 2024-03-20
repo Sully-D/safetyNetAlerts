@@ -24,7 +24,7 @@ public class FirestationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ImplEncapsulateModelsPrsFstMdrDAOFirestation firestationService;
+    private ImplEncapsulateModelsPrsFstMdrDAOFirestation firestationRepository;
 
     @Test
     public void addFirestation_ReturnsCreatedStatus() throws Exception {
@@ -39,7 +39,7 @@ public class FirestationControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
 
-        verify(firestationService).add(any(Firestation.class));
+        verify(firestationRepository).add(any(Firestation.class));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class FirestationControllerTest {
         // GIVEN
         Firestation firestationToUpdate = new Firestation("123 Main St", "1");
         String firestationJson = "{\"address\":\"123 Main St\",\"station\":\"1\"}";
-        doNothing().when(firestationService).update(any(Firestation.class));
+        doNothing().when(firestationRepository).update(any(Firestation.class));
 
         // WHEN & THEN
         mockMvc.perform(patch("/firestation")
@@ -61,7 +61,7 @@ public class FirestationControllerTest {
     @Test
     public void deleteFirestation_WhenDeleted_ReturnsOkStatus() throws Exception {
         // GIVEN
-        doReturn(true).when(firestationService).delete(any(Firestation.class));
+        doReturn(true).when(firestationRepository).delete(any(Firestation.class));
 
         // WHEN & THEN
         mockMvc.perform(delete("/firestation")
@@ -73,7 +73,7 @@ public class FirestationControllerTest {
     @Test
     public void deleteFirestation_WhenNotDeleted_ReturnsNotFoundStatus() throws Exception {
         // GIVEN
-        doReturn(false).when(firestationService).delete(any(Firestation.class));
+        doReturn(false).when(firestationRepository).delete(any(Firestation.class));
 
         // WHEN & THEN
         mockMvc.perform(delete("/firestation")
