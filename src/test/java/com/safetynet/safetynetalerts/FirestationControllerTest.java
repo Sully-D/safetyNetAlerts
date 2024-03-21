@@ -2,7 +2,7 @@ package com.safetynet.safetynetalerts;
 
 import com.safetynet.safetynetalerts.controller.FirestationController;
 import com.safetynet.safetynetalerts.model.Firestation;
-import com.safetynet.safetynetalerts.repository.ImplEncapsulateModelsPrsFstMdrDAOFirestation;
+import com.safetynet.safetynetalerts.repository.implement.ImplEncapsulateModelsPrsFstMdrDAOFirestation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

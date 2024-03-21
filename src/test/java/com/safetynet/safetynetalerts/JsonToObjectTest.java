@@ -24,15 +24,10 @@ public class JsonToObjectTest {
     }
 
     @Test
-    void readJsonData_Success() throws IOException {
+    void readJsonData_Success() {
         EncapsulateModelsPrsFstMdr result = jsonToObject.readJsonData();
         assertNotNull(result);
     }
-
-//    @Test
-//    void readJsonData_ThrowsRuntimeException_OnFileNotFound() {
-//        assertThrows(RuntimeException.class, () -> jsonToObject.readJsonData());
-//    }
 
     @Test
     void saveJsonData_Success() {

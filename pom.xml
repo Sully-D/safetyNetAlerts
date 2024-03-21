@@ -96,6 +96,15 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.7</version>
+				<configuration>
+					<excludes>
+						<exclude>**/AllInfoPerson.class</exclude>
+						<exclude>**/EncapsulateModelsPrsFstMdr.class</exclude>
+						<exclude>**/Firestation.class</exclude>
+						<exclude>**/Medicalrecord.class</exclude>
+						<exclude>**/Person.class</exclude>
+					</excludes>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>

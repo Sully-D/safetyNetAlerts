@@ -3,7 +3,7 @@ package com.safetynet.safetynetalerts;
 
 import com.safetynet.safetynetalerts.controller.MedicalrecordController;
 import com.safetynet.safetynetalerts.model.Medicalrecord;
-import com.safetynet.safetynetalerts.repository.ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord;
+import com.safetynet.safetynetalerts.repository.implement.ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

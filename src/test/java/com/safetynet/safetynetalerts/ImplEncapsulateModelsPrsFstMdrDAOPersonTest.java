@@ -2,7 +2,7 @@ package com.safetynet.safetynetalerts;
 
 import com.safetynet.safetynetalerts.model.EncapsulateModelsPrsFstMdr;
 import com.safetynet.safetynetalerts.model.Person;
-import com.safetynet.safetynetalerts.repository.ImplEncapsulateModelsPrsFstMdrDAOPerson;
+import com.safetynet.safetynetalerts.repository.implement.ImplEncapsulateModelsPrsFstMdrDAOPerson;
 import com.safetynet.safetynetalerts.repository.JsonToObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
