@@ -64,7 +64,23 @@ public class ImplEncapsulateModelsPrsFstMdrDAOFirestationTest {
 
         // Then
         assertNull(result);
+        assertTrue(readJsonData.getFirestationList().isEmpty());
+        verify(jsonToObject, never()).saveJsonData(any(EncapsulateModelsPrsFstMdr.class));
     }
+
+    @Test
+    void addFirestation_FailureToSaveData() {
+        Firestation newFirestation = new Firestation("Address 2", "2");
+
+        when(jsonToObject.saveJsonData(readJsonData)).thenReturn(false);
+
+        Firestation result = daoFirestation.add(newFirestation);
+
+        assertNull(result);
+        assertTrue(readJsonData.getFirestationList().contains(newFirestation));
+        verify(jsonToObject, times(1)).saveJsonData(readJsonData);
+    }
+
 
     @Test
     void updateFirestation_Successfully() {
