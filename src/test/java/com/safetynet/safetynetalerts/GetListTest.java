@@ -3,6 +3,7 @@ package com.safetynet.safetynetalerts;
 import com.safetynet.safetynetalerts.model.*;
 import com.safetynet.safetynetalerts.repository.JsonToObject;
 import com.safetynet.safetynetalerts.service.GetList;
+import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,20 +37,43 @@ public class GetListTest {
         getList.init();
     }
 
+
+    @Test
+    void init_whenReadJsonDataThrowsException_shouldHandleException() {
+        // GIVEN
+        doThrow(new RuntimeException("Failed to read JSON data")).when(jsonToObject).readJsonData();
+
+        // WHEN & THEN
+        getList.init();
+    }
+
     @Test
     void getAddressFirestationByNumber_returnsCorrectAddresses() {
-        // Préparation des données mockées
+        // GIVEN
         Firestation station1 = new Firestation("Address 1", "1");
         Firestation station2 = new Firestation("Address 2", "2");
         List<Firestation> mockedList = Arrays.asList(station1, station2);
 
         when(readJsonData.getFirestationList()).thenReturn(mockedList);
 
-        // Test
+        // WHEN
         List<String> addresses = getList.getAddressFirestationByNumber("1");
 
-        // Assertions
+        // THEN
         assertEquals(1, addresses.size());
+    }
+
+    @Test
+    void whenListFirestationsIsEmpty_thenReturnsEmptyList() {
+        // GIVEN
+        List<Firestation> mockData = Arrays.asList();
+        when(readJsonData.getFirestationList()).thenReturn(mockData);
+
+        // WHEN
+        List<String> result = getList.getAddressFirestationByNumber("1");
+
+        // THEN
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -71,6 +95,48 @@ public class GetListTest {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(person -> person.getFirstName().equals("John")));
         assertTrue(result.stream().anyMatch(person -> person.getFirstName().equals("Jim")));
+    }
+
+    @Test
+    void getPersonByAddressStation_whenAddressStationIsNull_shouldReturnEmptyList() {
+        List<String> addressStation = null;
+
+        List<Person> result = getList.getPersonByAddressStation(addressStation);
+
+        assertTrue(result.isEmpty(), "Should return an empty list when addressStation is null.");
+    }
+
+    @Test
+    void getPersonByAddressStation_whenAddressStationIsEmpty_shouldReturnEmptyList() {
+        List<String> addressStation = Collections.emptyList();
+
+        List<Person> result = getList.getPersonByAddressStation(addressStation);
+
+        assertTrue(result.isEmpty(), "Should return an empty list when addressStation is empty.");
+    }
+
+    @Test
+    void getPersonByAddressStation_whenPersonListIsEmpty_shouldReturnEmptyList() {
+        List<String> addressStation = Arrays.asList("Address 1");
+        when(readJsonData.getPersonList()).thenReturn(Collections.emptyList());
+
+        List<Person> result = getList.getPersonByAddressStation(addressStation);
+
+        assertTrue(result.isEmpty(), "Should return an empty list when there are no persons.");
+    }
+
+    @Test
+    void getPersonByAddressStation_whenNoPersonMatchesAddress_shouldReturnEmptyList() {
+        List<String> addressStation = Arrays.asList("Non-existing address");
+        List<Person> mockPersonList = Arrays.asList(
+                new Person("John", "Doe", "Address 1", "City", "Zip", "Phone", "Email"),
+                new Person("Jane", "Doe", "Address 2", "City", "Zip", "Phone", "Email")
+        );
+        when(readJsonData.getPersonList()).thenReturn(mockPersonList);
+
+        List<Person> result = getList.getPersonByAddressStation(addressStation);
+
+        assertTrue(result.isEmpty(), "Should return an empty list when no persons match the given addresses.");
     }
 
     @Test
