@@ -103,7 +103,7 @@ public class GetListTest {
 
         List<Person> result = getList.getPersonByAddressStation(addressStation);
 
-        assertTrue(result.isEmpty(), "Should return an empty list when addressStation is null.");
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class GetListTest {
 
         List<Person> result = getList.getPersonByAddressStation(addressStation);
 
-        assertTrue(result.isEmpty(), "Should return an empty list when addressStation is empty.");
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -122,7 +122,7 @@ public class GetListTest {
 
         List<Person> result = getList.getPersonByAddressStation(addressStation);
 
-        assertTrue(result.isEmpty(), "Should return an empty list when there are no persons.");
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -136,7 +136,7 @@ public class GetListTest {
 
         List<Person> result = getList.getPersonByAddressStation(addressStation);
 
-        assertTrue(result.isEmpty(), "Should return an empty list when no persons match the given addresses.");
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -172,6 +172,28 @@ public class GetListTest {
         assertEquals("Doe", firstPersonAge.get("lastName"));
         assertEquals("35", firstPersonAge.get("age"));
     }
+
+    @Test
+    void getAge_whenListPersonsIsEmpty_shouldReturnEmptyList() {
+        List<Person> listPersons = Collections.emptyList();
+
+        List<Map<String, String>> result = getList.getAge(listPersons);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getAge_whenListMedicalRecordsIsEmpty_shouldReturnEmptyList() {
+        List<Person> listPersons = Arrays.asList(new Person("John", "Doe", "Address 1",
+                "Test", "12345", "555-1234", "john.doe@example.com"));
+        when(readJsonData.getMedicalrecordList()).thenReturn(Collections.emptyList());
+
+        List<Map<String, String>> result = getList.getAge(listPersons);
+
+        assertTrue(result.isEmpty());
+    }
+
+
     @Test
     void getPersonByAddress_returnListPersons(){
 
@@ -193,6 +215,26 @@ public class GetListTest {
     }
 
     @Test
+    void getPersonByAddress_whenAddressIsEmptyOrNull_shouldReturnEmptyList() {
+        // Test with null address
+        List<Person> resultWithNullAddress = getList.getPersonByAddress(null);
+        assertTrue(resultWithNullAddress.isEmpty());
+
+        // Test with empty address
+        List<Person> resultWithEmptyAddress = getList.getPersonByAddress("");
+        assertTrue(resultWithEmptyAddress.isEmpty());
+    }
+
+    @Test
+    void getPersonByAddress_whenPersonListIsEmpty_shouldReturnEmptyList() {
+        when(readJsonData.getPersonList()).thenReturn(Collections.emptyList());
+
+        List<Person> result = getList.getPersonByAddress("Address 1");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
     void getNumberFirestationByAddress_returnNumberStation(){
 
         // GIVEN
@@ -209,6 +251,28 @@ public class GetListTest {
 
         // THEN
         assertEquals("1", result);
+    }
+
+    @Test
+    void getNumberFirestationByAddress_whenAddressIsEmptyOrNull_returnsNullAndLogsWarning() {
+        assertNull(getList.getNumberFirestationByAddress(null));
+
+        assertNull(getList.getNumberFirestationByAddress(""));
+    }
+
+    @Test
+    void getNumberFirestationByAddress_whenFirestationListIsEmpty_returnsNullAndLogsWarning() {
+        when(readJsonData.getFirestationList()).thenReturn(Collections.emptyList());
+
+        assertNull(getList.getNumberFirestationByAddress("Address 1"));
+    }
+
+    @Test
+    void getNumberFirestationByAddress_whenNoFirestationFoundForAddress_logsWarningAndReturnsNull() {
+        List<Firestation> mockedList = Collections.singletonList(new Firestation("Address 2", "2"));
+        when(readJsonData.getFirestationList()).thenReturn(mockedList);
+
+        assertNull(getList.getNumberFirestationByAddress("Address"));
     }
 
     @Test
@@ -237,6 +301,31 @@ public class GetListTest {
         AllInfoPerson expectedPerson = result.get(0);
         assertEquals("John", expectedPerson.getFirstName(), "First name should match.");
         assertEquals("Doe", expectedPerson.getLastName(), "Last name should match.");
+    }
+
+    @Test
+    void allInfosPerson_whenInputListsAreEmpty_returnsEmptyListAndLogsWarning() {
+        List<Person> emptyPersonsList = Collections.emptyList();
+        List<Map<String, String>> emptyAgesList = Collections.emptyList();
+
+        List<AllInfoPerson> result = getList.allInfosPerson(emptyPersonsList, emptyAgesList);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void allInfosPerson_whenNoMatchBetweenLists_returnsEmptyList() {
+        List<Person> personsList = Collections.singletonList(new Person("John", "Doe",
+                "Address 1", "Test", "12345", "555-1234", "john.doe@example.com"));
+        Map<String, String> ageMap = new HashMap<>();
+        ageMap.put("firstName", "Jane");
+        ageMap.put("lastName", "Doe");
+        ageMap.put("age", "30");
+        List<Map<String, String>> agesList = Collections.singletonList(ageMap);
+
+        List<AllInfoPerson> result = getList.allInfosPerson(personsList, agesList);
+
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -274,6 +363,24 @@ public class GetListTest {
     }
 
     @Test
+    void getMedicalRecord_whenNoRecordFound_returnsEmptyMapAndLogsWarning() {
+        // Given
+        String firstName = "NonExistent";
+        String lastName = "Person";
+        List<Medicalrecord> medicalRecords = Arrays.asList(
+                new Medicalrecord("John", "Doe", "01/01/1990", Collections.emptyList(), Collections.emptyList()),
+                new Medicalrecord("Jane", "Doe", "02/02/1990", Collections.emptyList(), Collections.emptyList())
+        );
+        when(readJsonData.getMedicalrecordList()).thenReturn(medicalRecords);
+
+        // When
+        Map<String, String> result = getList.getMedicalRecord(firstName, lastName);
+
+        // Then
+        assertTrue(result.isEmpty(), "Expected an empty map when no medical record is found.");
+    }
+
+    @Test
     void sortByAddress_returnListInfosPersonSort(){
         // GIVEN
         AllInfoPerson person1 = new AllInfoPerson("1", "Address 1", "Doe", "John",
@@ -306,6 +413,34 @@ public class GetListTest {
     }
 
     @Test
+    void sortByAddress_whenListInfoPersonsIsEmpty_returnsEmptyListAndLogsWarning() {
+        // Given
+        List<AllInfoPerson> listInfoPersons = Collections.emptyList();
+        List<String> listFirestationAddress = Arrays.asList("Address 1", "Address 2");
+
+        // When
+        List<AllInfoPerson> result = getList.sortByAddress(listInfoPersons, listFirestationAddress);
+
+        // Then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void sortByAddress_whenListFirestationAddressIsEmpty_returnsEmptyListAndLogsWarning() {
+        // Given
+        AllInfoPerson person1 = new AllInfoPerson("1", "Address 1", "Doe", "John",
+                "35", "medications", "allergies", "email@example.com", "111-222-3333");
+        List<AllInfoPerson> listInfoPersons = Arrays.asList(person1);
+        List<String> listFirestationAddress = Collections.emptyList();
+
+        // When
+        List<AllInfoPerson> result = getList.sortByAddress(listInfoPersons, listFirestationAddress);
+
+        // Then
+        assertTrue(result.isEmpty(), "Expected an empty list when listFirestationAddress is empty.");
+    }
+
+    @Test
     void allFirestationsAddress_returnListAddress(){
         // GIVEN
         List<String> listFirestationNumber = Arrays.asList("1", "2");
@@ -324,6 +459,18 @@ public class GetListTest {
         assertEquals(2, result.size());
         assertTrue(result.contains("Address 1"));
         assertTrue(result.contains("Address 2"));
+    }
+
+    @Test
+    void allFirestationsAddress_whenListFirestationsNumbersIsEmpty_returnsEmptyListAndLogsWarning() {
+        // Given
+        List<String> listFirestationsNumbers = Collections.emptyList();
+
+        // When
+        List<String> result = getList.allFirestationsAddress(listFirestationsNumbers);
+
+        // Then
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -350,6 +497,54 @@ public class GetListTest {
     }
 
     @Test
+    void getEmailByCity_whenCityIsNull_returnsEmptyListAndLogsWarning() {
+        // When
+        List<String> result = getList.getEmailByCity(null);
+
+        // Then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getEmailByCity_whenCityIsEmpty_returnsEmptyListAndLogsWarning() {
+        // When
+        List<String> result = getList.getEmailByCity("");
+
+        // Then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getEmailByCity_whenListPersonsIsEmpty_returnsEmptyListAndLogsWarning() {
+        // Given
+        when(readJsonData.getPersonList()).thenReturn(new ArrayList<>());
+
+        // When
+        List<String> result = getList.getEmailByCity("AnyCity");
+
+        // Then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getEmailByCity_whenNoEmailsFound_returnsEmptyListAndLogsInfo() {
+        // Given
+        String city = "NonExistingCity";
+        List<Person> persons = Arrays.asList(
+                new Person("John", "Doe", "Address 1", "City", "12345",
+                        "555-1234", "john@example.com"),
+                new Person("Jane", "Doe", "456 Elm St", "City", "67890",
+                        "555-5678", "jane@example.com"));
+        when(readJsonData.getPersonList()).thenReturn(persons);
+
+        // When
+        List<String> result = getList.getEmailByCity(city);
+
+        // Then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
     void getFirestationNumber_returnListFirestationNumber(){
 
         // GIVEN
@@ -370,4 +565,17 @@ public class GetListTest {
         assertTrue(result.contains("2"));
         assertTrue(result.contains("3"));
     }
+
+    @Test
+    void getFirestationNumber_whenListFirestationsIsEmpty_returnsEmptyListAndLogsWarning() {
+        // Given
+        when(readJsonData.getFirestationList()).thenReturn(new ArrayList<>());
+
+        // When
+        List<String> result = getList.getFirestationNumber();
+
+        // Then
+        assertTrue(result.isEmpty());
+    }
+
 }
