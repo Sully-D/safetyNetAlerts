@@ -18,7 +18,7 @@ import java.util.Optional;
  * Implementation of {@link EncapsulateModelsPrsFstMdrDAO} for {@link Person} entities.
  * Handles adding, updating, and deleting person records in the application's JSON data storage.
  */
-@Data
+//@Data
 @Repository
 public class ImplEncapsulateModelsPrsFstMdrDAOPerson implements EncapsulateModelsPrsFstMdrDAO<Person> {
 

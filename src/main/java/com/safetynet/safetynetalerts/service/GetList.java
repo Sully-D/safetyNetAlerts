@@ -14,7 +14,7 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-@Data
+//@Data
 @Service
 public class GetList {
 
