@@ -4,6 +4,7 @@ import com.safetynet.safetynetalerts.model.Person;
 import com.safetynet.safetynetalerts.repository.implement.ImplEncapsulateModelsPrsFstMdrDAOPerson;
 import com.safetynet.safetynetalerts.service.URIs;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -33,6 +34,10 @@ public class PersonController {
      */
     @PostMapping("/person")
     public ResponseEntity<Person> addPerson(@RequestBody Person person) {
+        Person exists = personService.add(person);
+        if (exists == null){
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
         personService.add(person);
 
         // Creating URI for the newly added person
