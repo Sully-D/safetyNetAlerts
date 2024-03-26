@@ -387,13 +387,14 @@ public class GetList {
             return new ArrayList<>();
         }
 
-        List<String> listEmails = new ArrayList<>();
+        Set<String> emailSet = new HashSet<>();
 
         for (Person person : listPersons) {
             if (person.getCity().equalsIgnoreCase(city)) {
-                listEmails.add(person.getEmail());
+                emailSet.add(person.getEmail());
             }
         }
+        List<String> listEmails = new ArrayList<>(emailSet);
 
         if (listEmails.isEmpty()) {
             logger.info("No email addresses found for persons residing in city: {}", city);
