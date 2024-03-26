@@ -3,6 +3,7 @@ package com.safetynet.safetynetalerts.controller;
 import com.safetynet.safetynetalerts.model.Medicalrecord;
 import com.safetynet.safetynetalerts.repository.implement.ImplEncapsulateModelsPrsFstMdrDAOMedicalrecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,10 @@ public class MedicalrecordController {
      */
     @PostMapping("/medicalRecord")
     public ResponseEntity<Object> add(@Validated @RequestBody Medicalrecord medicalrecord) {
+        Medicalrecord exists = medicalrecordService.add(medicalrecord);
+        if (exists == null){
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
         medicalrecordService.add(medicalrecord);
 
         // Creating URI for the newly added medicalrecord using both firstName and lastName

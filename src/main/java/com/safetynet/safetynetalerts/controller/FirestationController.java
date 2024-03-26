@@ -3,6 +3,7 @@ package com.safetynet.safetynetalerts.controller;
 import com.safetynet.safetynetalerts.model.Firestation;
 import com.safetynet.safetynetalerts.repository.implement.ImplEncapsulateModelsPrsFstMdrDAOFirestation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,6 +28,10 @@ public class FirestationController {
      */
     @PostMapping("/firestation")
     public ResponseEntity<Object> add(@RequestBody Firestation firestation) {
+        Firestation exists = firestationService.add(firestation);
+        if (exists == null){
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
         firestationService.add(firestation);
 
         // Creating URI for the newly added firestation
